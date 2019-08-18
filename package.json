@@ -1,0 +1,68 @@
+{
+  "name": "peng",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "yarn serve",
+    "start:dev": "yarn watch",
+    "build": "yarn build-ts && yarn tslint",
+    "serve": "node dist/index.js",
+    "watch-node": "nodemon dist/index.js",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "watch": "concurrently -p \"[{name}]\" -n \"TypeScript,Node\" -c \"bgBlue.bold,bgGreen.bold\" \"yarn run watch-ts\" \"yarn run watch-node\"",
+    "precommit": "yarn no-var && lint-staged",
+    "format": "prettier --config package.json --write",
+    "no-var": "[[ -z $(git ls-files | grep '\\.jsx\\?$' | xargs grep -i 'var\\s') ]] || (echo 'Error: var keyword not allowed' && exit 1)"
+  },
+  "_moduleAliases": {
+    "@": "./dist"
+  },
+  "dependencies": {
+    "apollo-server-express": "^2.7.0-alpha.3",
+    "bcryptjs": "^2.4.3",
+    "class-validators": "^1.0.1",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "graphql": "^14.3.1",
+    "husky": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.11",
+    "module-alias": "^2.2.0",
+    "pg-promise": "^8.7.2",
+    "pluralize": "^8.0.0",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^0.17.4",
+    "typeorm": "^0.2.18"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^4.17.0",
+    "@types/graphql": "^14.2.2",
+    "@types/jsonwebtoken": "^8.3.2",
+    "@types/lodash": "^4.14.135",
+    "@types/node": "^12.0.10",
+    "@types/pluralize": "^0.0.29",
+    "concurrently": "^4.1.1",
+    "lint-staged": "^9.1.0",
+    "nodemon": "^1.19.1",
+    "prettier": "^1.18.2",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.2"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "yarn format",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "arrowParens": "always"
+  }
+}
