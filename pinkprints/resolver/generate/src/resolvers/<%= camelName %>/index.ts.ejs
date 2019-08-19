@@ -1,0 +1,64 @@
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+} from 'type-graphql';
+
+import { <%= name %> } from '@/entities/<%= name %>';
+
+import { Create<%= name %>Input } from './types/Create<%= name %>Input';
+import { Update<%= name %>Input } from './types/Update<%= name %>Input';
+
+import { Auth } from '@/middleware/Auth';
+
+@Resolver(() => <%= name %>)
+export class <%= name %>Resolver {
+  //////////////////////////////////////////////////////////////////////////////
+  // Get all <%= name %> rows
+  //////////////////////////////////////////////////////////////////////////////
+  @Query(() => [<%= name %>])
+  async <%= pluralName %>(): Promise<<%= name %>[]> {
+    return <%= name %>.find();
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Get <%= name %> by id
+  //////////////////////////////////////////////////////////////////////////////
+  @Query(() => <%= name %>)
+  async <%= camelName %>(@Arg('id') id: number): Promise<<%= name %>> {
+    return <%= name %>.findOne(id);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Create <%= name %>
+  //////////////////////////////////////////////////////////////////////////////
+  @UseMiddleware(Auth())
+  @Mutation(() => <%= name %>)
+  async create<%= name %>(@Arg('input') input: Create<%= name %>Input): Promise<<%= name %>> {
+    return await <%= name %>.create(input).save();
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Update <%= name %>
+  //////////////////////////////////////////////////////////////////////////////
+  @UseMiddleware(Auth())
+  @Mutation(() => <%= name %>)
+  async update<%= name %>(@Arg('id') id: number, @Arg('input') input: Update<%= name %>Input): Promise<<%= name %>> {
+    const <%= camelName %> = await <%= name %>.findOne(id);
+    await <%= name %>.merge(<%= camelName %>, input);
+    return await <%= camelName %>.save();
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Delete <%= name %>
+  //////////////////////////////////////////////////////////////////////////////
+  @UseMiddleware(Auth())
+  @Mutation(() => Boolean)
+  async delete<%= name %>(@Arg('id') id: number): Promise<Boolean> {
+    const <%= camelName %> = await <%= name %>.findOne(id);
+    await <%= camelName %>.remove();
+    return true;
+  }
+}

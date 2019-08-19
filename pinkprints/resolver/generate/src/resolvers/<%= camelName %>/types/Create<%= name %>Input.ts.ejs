@@ -1,0 +1,9 @@
+import { InputType, Field } from 'type-graphql';
+
+import { <%= name %> } from '@/entities/<%= name %>';
+
+@InputType()
+export class Create<%= name %>Input implements Partial<<%= name %>> {
+  @Field()
+  name: string;
+}

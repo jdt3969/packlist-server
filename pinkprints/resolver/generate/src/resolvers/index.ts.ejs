@@ -1,0 +1,12 @@
+//////////////////////////////////////////////////////////////////////////////
+// DO NOT MODIFY. This is a generated file.
+//////////////////////////////////////////////////////////////////////////////
+<% entities.forEach(({ dirName, resolverName }) => { -%>
+import { <%= resolverName %> } from './<%= dirName %>';
+<% }) -%>
+
+export default [
+<% entities.forEach(({ resolverName }) => { -%>
+  <%= resolverName %>,
+<% }) -%>
+];

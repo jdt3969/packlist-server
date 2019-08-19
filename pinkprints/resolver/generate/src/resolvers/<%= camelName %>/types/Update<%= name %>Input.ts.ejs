@@ -1,0 +1,9 @@
+import { InputType, Field, ID } from 'type-graphql';
+
+import { <%= name %> } from '@/entities/<%= name %>';
+
+@InputType()
+export class Update<%= name %>Input implements Partial<<%= name %>> {
+  @Field({ nullable: true })
+  name?: string;
+}

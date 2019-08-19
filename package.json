@@ -13,9 +13,9 @@
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "watch": "concurrently -p \"[{name}]\" -n \"TypeScript,Node\" -c \"bgBlue.bold,bgGreen.bold\" \"yarn run watch-ts\" \"yarn run watch-node\"",
-    "precommit": "yarn no-var && lint-staged",
     "format": "prettier --config package.json --write",
-    "no-var": "[[ -z $(git ls-files | grep '\\.jsx\\?$' | xargs grep -i 'var\\s') ]] || (echo 'Error: var keyword not allowed' && exit 1)"
+    "no-var": "[[ -z $(git ls-files | grep '\\.jsx\\?$' | xargs grep -i 'var\\s') ]] || (echo 'Error: var keyword not allowed' && exit 1)",
+    "g": "pink generate"
   },
   "_moduleAliases": {
     "@": "./dist"
@@ -32,6 +32,7 @@
     "lodash": "^4.17.11",
     "module-alias": "^2.2.0",
     "pg-promise": "^8.7.2",
+    "pinkprint": "jdt3969/pinkprint",
     "pluralize": "^8.0.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^0.17.4",
@@ -58,6 +59,12 @@
       "yarn format",
       "git add"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn no-var && lint-staged",
+      "...": "..."
+    }
   },
   "prettier": {
     "singleQuote": true,
