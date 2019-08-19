@@ -4,6 +4,9 @@
 # TS compiled files
 /dist/
 
+# DB Config
+ormconfig.json
+
 # JWT Token
 jwtRS256.key
 jwtRS256.key.pub
