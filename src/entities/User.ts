@@ -7,7 +7,10 @@ import {
 } from 'typeorm';
 import { ObjectType, Field, ID, Root } from 'type-graphql';
 
-import { Thing } from './Thing';
+import { Category } from './Category';
+import { UserItem } from './UserItem';
+import { Pack } from './Pack';
+import { List } from './List';
 
 @ObjectType()
 @Entity()
@@ -36,6 +39,19 @@ export class User extends BaseEntity {
   @Column('text', { unique: true })
   email: string;
 
-  @OneToMany(() => Thing, (thing: Thing) => thing.owner)
-  things: Thing[];
+  @Field(() => [Category])
+  @OneToMany(() => Category, (category: Category) => category.user)
+  categories: Category[];
+
+  @Field(() => [UserItem])
+  @OneToMany(() => UserItem, (userItem: UserItem) => userItem.user)
+  userItems: UserItem[];
+
+  @Field(() => [Pack])
+  @OneToMany(() => Pack, (pack: Pack) => pack.user)
+  packs: Pack[];
+
+  @Field(() => [List])
+  @OneToMany(() => List, (list: List) => list.user)
+  lists: List[];
 }
