@@ -21,13 +21,3 @@ export const Auth: (...args: AuthenticationFn[]) => MiddlewareFn<Context> = (
 
   return next();
 };
-
-export const isOwner: AuthenticationFn = ({ activeUser, root }) => {
-  if (!root || !root.ownerId) {
-    console.error(
-      'isOwner should only be used on the field of an object with an ownerId'
-    );
-    return false;
-  }
-  return activeUser.id === root.ownerId;
-};

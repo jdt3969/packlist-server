@@ -5,5 +5,8 @@ import { ShoppingLink } from '@/entities/ShoppingLink';
 @InputType()
 export class CreateShoppingLinkInput implements Partial<ShoppingLink> {
   @Field()
-  name: string;
+  url: string;
+
+  @Field()
+  itemId: number;
 }

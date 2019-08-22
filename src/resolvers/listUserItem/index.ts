@@ -1,11 +1,21 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { ListUserItem } from '@/entities/ListUserItem';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreateListUserItemInput } from './types/CreateListUserItemInput';
 import { UpdateListUserItemInput } from './types/UpdateListUserItemInput';
-
-import { Auth } from '@/middleware/Auth';
 
 @Resolver(() => ListUserItem)
 export class ListUserItemResolver {
@@ -14,15 +24,18 @@ export class ListUserItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [ListUserItem])
   async listUserItems(): Promise<ListUserItem[]> {
-    return ListUserItem.find();
+    return getAll<ListUserItem>(ListUserItem);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get ListUserItem by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => ListUserItem)
-  async listUserItem(@Arg('id') id: number): Promise<ListUserItem> {
-    return ListUserItem.findOne(id);
+  async listUserItem(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<ListUserItem> {
+    return getOne<ListUserItem>(ListUserItem, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -31,9 +44,10 @@ export class ListUserItemResolver {
   @UseMiddleware(Auth())
   @Mutation(() => ListUserItem)
   async createListUserItem(
-    @Arg('input') input: CreateListUserItemInput
+    @Arg('input') input: CreateListUserItemInput,
+    @Ctx() ctx: Context
   ): Promise<ListUserItem> {
-    return await ListUserItem.create(input).save();
+    return create<ListUserItem>(ListUserItem, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -43,11 +57,12 @@ export class ListUserItemResolver {
   @Mutation(() => ListUserItem)
   async updateListUserItem(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateListUserItemInput
+    @Arg('input') input: UpdateListUserItemInput,
+    @Ctx() ctx: Context
   ): Promise<ListUserItem> {
-    const listUserItem = await ListUserItem.findOne(id);
-    await ListUserItem.merge(listUserItem, input);
-    return await listUserItem.save();
+    return update<ListUserItem>(ListUserItem, id, input, ctx, {
+      isOwner: true,
+    });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -55,9 +70,10 @@ export class ListUserItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteListUserItem(@Arg('id') id: number): Promise<Boolean> {
-    const listUserItem = await ListUserItem.findOne(id);
-    await listUserItem.remove();
-    return true;
+  async deleteListUserItem(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(ListUserItem, id, ctx, { isOwner: true });
   }
 }

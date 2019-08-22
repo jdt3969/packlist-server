@@ -4,6 +4,7 @@ import {
   ManyToOne,
   BaseEntity,
   OneToMany,
+  Column,
 } from 'typeorm';
 import { ObjectType, Field, ID } from 'type-graphql';
 
@@ -23,23 +24,27 @@ export class UserItem extends BaseEntity {
   @Field(() => User)
   @ManyToOne(() => User, (user: User) => user.userItems)
   user: User;
+  @Column()
+  userId: number;
 
   @Field(() => Item)
   @ManyToOne(() => Item, (item: Item) => item.userItems)
   item: Item;
+  @Column()
+  itemId: number;
 
   @Field(() => Category)
   @ManyToOne(() => Category, (category: Category) => category.userItems)
   category: Category;
+  @Column()
+  categoryId: number;
 
-  @Field(() => [PackUserItem])
   @OneToMany(
     () => PackUserItem,
     (packUserItem: PackUserItem) => packUserItem.userItem
   )
   packUserItems: PackUserItem[];
 
-  @Field(() => [ListUserItem])
   @OneToMany(
     () => ListUserItem,
     (listUserItem: ListUserItem) => listUserItem.userItem

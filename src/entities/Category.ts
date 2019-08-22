@@ -22,11 +22,11 @@ export class Category extends BaseEntity {
   @Column()
   name: string;
 
-  @Field(() => User)
   @ManyToOne(() => User, (user: User) => user.categories)
   user: User;
+  @Column()
+  userId: number;
 
-  @Field(() => [UserItem])
   @OneToMany(() => UserItem, (userItem: UserItem) => userItem.category)
   userItems: UserItem[];
 }

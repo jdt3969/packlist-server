@@ -18,14 +18,18 @@ export class PackUserItem extends BaseEntity {
   id: number;
 
   @Field()
-  @Column()
+  @Column({ default: false })
   isWorn: boolean;
 
   @Field(() => UserItem)
   @ManyToOne(() => UserItem, (userItem: UserItem) => userItem.packUserItems)
   userItem: UserItem;
+  @Column()
+  userItemId: number;
 
   @Field(() => Pack)
   @ManyToOne(() => Pack, (pack: Pack) => pack.packUserItems)
   pack: Pack;
+  @Column()
+  packId: number;
 }

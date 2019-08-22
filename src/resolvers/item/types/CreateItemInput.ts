@@ -6,4 +6,16 @@ import { Item } from '@/entities/Item';
 export class CreateItemInput implements Partial<Item> {
   @Field()
   name: string;
+
+  @Field()
+  price: number;
+
+  @Field()
+  weight: number;
+
+  @Field()
+  companyId: number;
+
+  @Field()
+  unitOfMeasureId: number;
 }

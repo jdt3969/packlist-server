@@ -6,4 +6,7 @@ import { Company } from '@/entities/Company';
 export class CreateCompanyInput implements Partial<Company> {
   @Field()
   name: string;
+
+  @Field()
+  url: string;
 }

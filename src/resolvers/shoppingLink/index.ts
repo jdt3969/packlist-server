@@ -1,11 +1,21 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { ShoppingLink } from '@/entities/ShoppingLink';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreateShoppingLinkInput } from './types/CreateShoppingLinkInput';
 import { UpdateShoppingLinkInput } from './types/UpdateShoppingLinkInput';
-
-import { Auth } from '@/middleware/Auth';
 
 @Resolver(() => ShoppingLink)
 export class ShoppingLinkResolver {
@@ -14,15 +24,18 @@ export class ShoppingLinkResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [ShoppingLink])
   async shoppingLinks(): Promise<ShoppingLink[]> {
-    return ShoppingLink.find();
+    return getAll<ShoppingLink>(ShoppingLink);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get ShoppingLink by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => ShoppingLink)
-  async shoppingLink(@Arg('id') id: number): Promise<ShoppingLink> {
-    return ShoppingLink.findOne(id);
+  async shoppingLink(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<ShoppingLink> {
+    return getOne<ShoppingLink>(ShoppingLink, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -31,9 +44,10 @@ export class ShoppingLinkResolver {
   @UseMiddleware(Auth())
   @Mutation(() => ShoppingLink)
   async createShoppingLink(
-    @Arg('input') input: CreateShoppingLinkInput
+    @Arg('input') input: CreateShoppingLinkInput,
+    @Ctx() ctx: Context
   ): Promise<ShoppingLink> {
-    return await ShoppingLink.create(input).save();
+    return create<ShoppingLink>(ShoppingLink, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -43,11 +57,12 @@ export class ShoppingLinkResolver {
   @Mutation(() => ShoppingLink)
   async updateShoppingLink(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateShoppingLinkInput
+    @Arg('input') input: UpdateShoppingLinkInput,
+    @Ctx() ctx: Context
   ): Promise<ShoppingLink> {
-    const shoppingLink = await ShoppingLink.findOne(id);
-    await ShoppingLink.merge(shoppingLink, input);
-    return await shoppingLink.save();
+    return update<ShoppingLink>(ShoppingLink, id, input, ctx, {
+      isOwner: true,
+    });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -55,9 +70,10 @@ export class ShoppingLinkResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteShoppingLink(@Arg('id') id: number): Promise<Boolean> {
-    const shoppingLink = await ShoppingLink.findOne(id);
-    await shoppingLink.remove();
-    return true;
+  async deleteShoppingLink(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(ShoppingLink, id, ctx, { isOwner: true });
   }
 }

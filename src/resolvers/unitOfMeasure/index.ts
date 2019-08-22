@@ -1,28 +1,42 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { UnitOfMeasure } from '@/entities/UnitOfMeasure';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreateUnitOfMeasureInput } from './types/CreateUnitOfMeasureInput';
 import { UpdateUnitOfMeasureInput } from './types/UpdateUnitOfMeasureInput';
 
-import { Auth } from '@/middleware/Auth';
-
 @Resolver(() => UnitOfMeasure)
 export class UnitOfMeasureResolver {
+  /*
   //////////////////////////////////////////////////////////////////////////////
   // Get all UnitOfMeasure rows
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [UnitOfMeasure])
   async unitOfMeasures(): Promise<UnitOfMeasure[]> {
-    return UnitOfMeasure.find();
+    return getAll<UnitOfMeasure>(UnitOfMeasure);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get UnitOfMeasure by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => UnitOfMeasure)
-  async unitOfMeasure(@Arg('id') id: number): Promise<UnitOfMeasure> {
-    return UnitOfMeasure.findOne(id);
+  async unitOfMeasure(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<UnitOfMeasure> {
+    return getOne<UnitOfMeasure>(UnitOfMeasure, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -31,9 +45,10 @@ export class UnitOfMeasureResolver {
   @UseMiddleware(Auth())
   @Mutation(() => UnitOfMeasure)
   async createUnitOfMeasure(
-    @Arg('input') input: CreateUnitOfMeasureInput
+    @Arg('input') input: CreateUnitOfMeasureInput,
+    @Ctx() ctx: Context
   ): Promise<UnitOfMeasure> {
-    return await UnitOfMeasure.create(input).save();
+    return create<UnitOfMeasure>(UnitOfMeasure, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -43,11 +58,10 @@ export class UnitOfMeasureResolver {
   @Mutation(() => UnitOfMeasure)
   async updateUnitOfMeasure(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateUnitOfMeasureInput
+    @Arg('input') input: UpdateUnitOfMeasureInput,
+    @Ctx() ctx: Context
   ): Promise<UnitOfMeasure> {
-    const unitOfMeasure = await UnitOfMeasure.findOne(id);
-    await UnitOfMeasure.merge(unitOfMeasure, input);
-    return await unitOfMeasure.save();
+    return update<UnitOfMeasure>(UnitOfMeasure, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -55,9 +69,11 @@ export class UnitOfMeasureResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteUnitOfMeasure(@Arg('id') id: number): Promise<Boolean> {
-    const unitOfMeasure = await UnitOfMeasure.findOne(id);
-    await unitOfMeasure.remove();
-    return true;
+  async deleteUnitOfMeasure(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(UnitOfMeasure, id, ctx, { isOwner: true });
   }
+  */
 }

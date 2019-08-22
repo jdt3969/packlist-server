@@ -5,5 +5,11 @@ import { UserItem } from '@/entities/UserItem';
 @InputType()
 export class CreateUserItemInput implements Partial<UserItem> {
   @Field()
-  name: string;
+  userId: number;
+
+  @Field()
+  itemId: number;
+
+  @Field()
+  categoryId: number;
 }

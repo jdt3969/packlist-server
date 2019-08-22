@@ -4,6 +4,5 @@ import { ListType } from '@/entities/ListType';
 
 @InputType()
 export class CreateListTypeInput implements Partial<ListType> {
-  @Field()
-  name: string;
+  id: number;
 }

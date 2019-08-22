@@ -5,5 +5,8 @@ import { ListUserItem } from '@/entities/ListUserItem';
 @InputType()
 export class CreateListUserItemInput implements Partial<ListUserItem> {
   @Field()
-  name: string;
+  userItemId: number;
+
+  @Field()
+  listId: number;
 }

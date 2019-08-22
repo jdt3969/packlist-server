@@ -1,11 +1,21 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { Pack } from '@/entities/Pack';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreatePackInput } from './types/CreatePackInput';
 import { UpdatePackInput } from './types/UpdatePackInput';
-
-import { Auth } from '@/middleware/Auth';
 
 @Resolver(() => Pack)
 export class PackResolver {
@@ -14,15 +24,15 @@ export class PackResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Pack])
   async packs(): Promise<Pack[]> {
-    return Pack.find();
+    return getAll<Pack>(Pack);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get Pack by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => Pack)
-  async pack(@Arg('id') id: number): Promise<Pack> {
-    return Pack.findOne(id);
+  async pack(@Arg('id') id: number, @Ctx() ctx: Context): Promise<Pack> {
+    return getOne<Pack>(Pack, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -30,8 +40,11 @@ export class PackResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Pack)
-  async createPack(@Arg('input') input: CreatePackInput): Promise<Pack> {
-    return await Pack.create(input).save();
+  async createPack(
+    @Arg('input') input: CreatePackInput,
+    @Ctx() ctx: Context
+  ): Promise<Pack> {
+    return create<Pack>(Pack, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -41,11 +54,10 @@ export class PackResolver {
   @Mutation(() => Pack)
   async updatePack(
     @Arg('id') id: number,
-    @Arg('input') input: UpdatePackInput
+    @Arg('input') input: UpdatePackInput,
+    @Ctx() ctx: Context
   ): Promise<Pack> {
-    const pack = await Pack.findOne(id);
-    await Pack.merge(pack, input);
-    return await pack.save();
+    return update<Pack>(Pack, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -53,9 +65,10 @@ export class PackResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deletePack(@Arg('id') id: number): Promise<Boolean> {
-    const pack = await Pack.findOne(id);
-    await pack.remove();
-    return true;
+  async deletePack(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(Pack, id, ctx, { isOwner: true });
   }
 }

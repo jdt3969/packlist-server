@@ -4,14 +4,18 @@ import {
   Mutation,
   Arg,
   UseMiddleware,
+  Ctx,
 } from 'type-graphql';
 
 import { <%= name %> } from '@/entities/<%= name %>';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { Create<%= name %>Input } from './types/Create<%= name %>Input';
 import { Update<%= name %>Input } from './types/Update<%= name %>Input';
-
-import { Auth } from '@/middleware/Auth';
 
 @Resolver(() => <%= name %>)
 export class <%= name %>Resolver {
@@ -20,15 +24,18 @@ export class <%= name %>Resolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [<%= name %>])
   async <%= pluralName %>(): Promise<<%= name %>[]> {
-    return <%= name %>.find();
+    return getAll<<%= name %>>(<%= name %>);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get <%= name %> by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => <%= name %>)
-  async <%= camelName %>(@Arg('id') id: number): Promise<<%= name %>> {
-    return <%= name %>.findOne(id);
+  async <%= camelName %>(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<<%= name %>> {
+    return getOne<<%= name %>>(<%= name %>, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -36,8 +43,11 @@ export class <%= name %>Resolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => <%= name %>)
-  async create<%= name %>(@Arg('input') input: Create<%= name %>Input): Promise<<%= name %>> {
-    return await <%= name %>.create(input).save();
+  async create<%= name %>(
+    @Arg('input') input: Create<%= name %>Input,
+    @Ctx() ctx: Context
+  ): Promise<<%= name %>> {
+    return create<<%= name %>>(<%= name %>, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -45,10 +55,12 @@ export class <%= name %>Resolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => <%= name %>)
-  async update<%= name %>(@Arg('id') id: number, @Arg('input') input: Update<%= name %>Input): Promise<<%= name %>> {
-    const <%= camelName %> = await <%= name %>.findOne(id);
-    await <%= name %>.merge(<%= camelName %>, input);
-    return await <%= camelName %>.save();
+  async update<%= name %>(
+    @Arg('id') id: number,
+    @Arg('input') input: Update<%= name %>Input,
+    @Ctx() ctx: Context
+  ): Promise<<%= name %>> {
+    return update<<%= name %>>(<%= name %>, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -56,9 +68,10 @@ export class <%= name %>Resolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async delete<%= name %>(@Arg('id') id: number): Promise<Boolean> {
-    const <%= camelName %> = await <%= name %>.findOne(id);
-    await <%= camelName %>.remove();
-    return true;
+  async delete<%= name %>(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(<%= name %>, id, ctx, { isOwner: true });
   }
 }

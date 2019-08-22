@@ -1,11 +1,21 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { Item } from '@/entities/Item';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreateItemInput } from './types/CreateItemInput';
 import { UpdateItemInput } from './types/UpdateItemInput';
-
-import { Auth } from '@/middleware/Auth';
 
 @Resolver(() => Item)
 export class ItemResolver {
@@ -14,15 +24,15 @@ export class ItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Item])
   async items(): Promise<Item[]> {
-    return Item.find();
+    return getAll<Item>(Item);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get Item by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => Item)
-  async item(@Arg('id') id: number): Promise<Item> {
-    return Item.findOne(id);
+  async item(@Arg('id') id: number, @Ctx() ctx: Context): Promise<Item> {
+    return getOne<Item>(Item, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -30,8 +40,11 @@ export class ItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Item)
-  async createItem(@Arg('input') input: CreateItemInput): Promise<Item> {
-    return await Item.create(input).save();
+  async createItem(
+    @Arg('input') input: CreateItemInput,
+    @Ctx() ctx: Context
+  ): Promise<Item> {
+    return create<Item>(Item, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -41,11 +54,10 @@ export class ItemResolver {
   @Mutation(() => Item)
   async updateItem(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateItemInput
+    @Arg('input') input: UpdateItemInput,
+    @Ctx() ctx: Context
   ): Promise<Item> {
-    const item = await Item.findOne(id);
-    await Item.merge(item, input);
-    return await item.save();
+    return update<Item>(Item, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -53,9 +65,10 @@ export class ItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteItem(@Arg('id') id: number): Promise<Boolean> {
-    const item = await Item.findOne(id);
-    await item.remove();
-    return true;
+  async deleteItem(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(Item, id, ctx, { isOwner: true });
   }
 }

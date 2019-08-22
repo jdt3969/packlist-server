@@ -23,13 +23,16 @@ export class List extends BaseEntity {
   @Column()
   name: string;
 
-  @Field(() => User)
   @ManyToOne(() => User, (user: User) => user.lists)
   user: User;
+  @Column()
+  userId: number;
 
   @Field(() => ListType)
   @ManyToOne(() => ListType, (listType: ListType) => listType.lists)
   listType: ListType;
+  @Column()
+  listTypeId: number;
 
   @Field(() => [ListUserItem])
   @OneToMany(

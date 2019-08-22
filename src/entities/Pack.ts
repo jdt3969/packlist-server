@@ -33,6 +33,8 @@ export class Pack extends BaseEntity {
   @Field(() => User)
   @ManyToOne(() => User, (user: User) => user.packs)
   user: User;
+  @Column()
+  userId: number;
 
   @Field(() => [PackUserItem])
   @OneToMany(

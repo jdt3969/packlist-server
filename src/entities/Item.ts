@@ -39,6 +39,8 @@ export class Item extends BaseEntity {
   @Field(() => Company)
   @ManyToOne(() => Company, (company: Company) => company.items)
   company: Company;
+  @Column()
+  companyId: number;
 
   @Field(() => UnitOfMeasure)
   @ManyToOne(
@@ -46,8 +48,9 @@ export class Item extends BaseEntity {
     (unitOfMeasure: UnitOfMeasure) => unitOfMeasure.items
   )
   unitOfMeasure: UnitOfMeasure;
+  @Column()
+  unitOfMeasureId: number;
 
-  @Field(() => [UserItem])
   @OneToMany(() => UserItem, (userItem: UserItem) => userItem.item)
   userItems: UserItem[];
 

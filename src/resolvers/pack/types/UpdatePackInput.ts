@@ -1,4 +1,4 @@
-import { InputType, Field, ID } from 'type-graphql';
+import { InputType, Field } from 'type-graphql';
 
 import { Pack } from '@/entities/Pack';
 
@@ -6,4 +6,10 @@ import { Pack } from '@/entities/Pack';
 export class UpdatePackInput implements Partial<Pack> {
   @Field({ nullable: true })
   name?: string;
+
+  @Field({ nullable: true })
+  description?: string;
+
+  @Field({ nullable: true })
+  isPrivate?: boolean;
 }

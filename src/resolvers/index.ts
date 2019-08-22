@@ -12,6 +12,7 @@ import { PackUserItemResolver } from './packUserItem';
 import { ShoppingLinkResolver } from './shoppingLink';
 import { UnitOfMeasureResolver } from './unitOfMeasure';
 import { UserResolver } from './user';
+import { UserItemResolver } from './userItem';
 
 export default [
   CategoryResolver,
@@ -25,4 +26,5 @@ export default [
   ShoppingLinkResolver,
   UnitOfMeasureResolver,
   UserResolver,
+  UserItemResolver,
 ];

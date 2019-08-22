@@ -1,11 +1,21 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { PackUserItem } from '@/entities/PackUserItem';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreatePackUserItemInput } from './types/CreatePackUserItemInput';
 import { UpdatePackUserItemInput } from './types/UpdatePackUserItemInput';
-
-import { Auth } from '@/middleware/Auth';
 
 @Resolver(() => PackUserItem)
 export class PackUserItemResolver {
@@ -14,15 +24,18 @@ export class PackUserItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [PackUserItem])
   async packUserItems(): Promise<PackUserItem[]> {
-    return PackUserItem.find();
+    return getAll<PackUserItem>(PackUserItem);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get PackUserItem by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => PackUserItem)
-  async packUserItem(@Arg('id') id: number): Promise<PackUserItem> {
-    return PackUserItem.findOne(id);
+  async packUserItem(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<PackUserItem> {
+    return getOne<PackUserItem>(PackUserItem, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -31,9 +44,10 @@ export class PackUserItemResolver {
   @UseMiddleware(Auth())
   @Mutation(() => PackUserItem)
   async createPackUserItem(
-    @Arg('input') input: CreatePackUserItemInput
+    @Arg('input') input: CreatePackUserItemInput,
+    @Ctx() ctx: Context
   ): Promise<PackUserItem> {
-    return await PackUserItem.create(input).save();
+    return create<PackUserItem>(PackUserItem, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -43,11 +57,12 @@ export class PackUserItemResolver {
   @Mutation(() => PackUserItem)
   async updatePackUserItem(
     @Arg('id') id: number,
-    @Arg('input') input: UpdatePackUserItemInput
+    @Arg('input') input: UpdatePackUserItemInput,
+    @Ctx() ctx: Context
   ): Promise<PackUserItem> {
-    const packUserItem = await PackUserItem.findOne(id);
-    await PackUserItem.merge(packUserItem, input);
-    return await packUserItem.save();
+    return update<PackUserItem>(PackUserItem, id, input, ctx, {
+      isOwner: true,
+    });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -55,9 +70,10 @@ export class PackUserItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deletePackUserItem(@Arg('id') id: number): Promise<Boolean> {
-    const packUserItem = await PackUserItem.findOne(id);
-    await packUserItem.remove();
-    return true;
+  async deletePackUserItem(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(PackUserItem, id, ctx, { isOwner: true });
   }
 }

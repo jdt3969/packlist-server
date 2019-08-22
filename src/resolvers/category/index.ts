@@ -1,11 +1,21 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { Category } from '@/entities/Category';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreateCategoryInput } from './types/CreateCategoryInput';
 import { UpdateCategoryInput } from './types/UpdateCategoryInput';
-
-import { Auth } from '@/middleware/Auth';
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -14,15 +24,18 @@ export class CategoryResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Category])
   async categories(): Promise<Category[]> {
-    return Category.find();
+    return getAll<Category>(Category);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get Category by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => Category)
-  async category(@Arg('id') id: number): Promise<Category> {
-    return Category.findOne(id);
+  async category(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Category> {
+    return getOne<Category>(Category, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -31,9 +44,10 @@ export class CategoryResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Category)
   async createCategory(
-    @Arg('input') input: CreateCategoryInput
+    @Arg('input') input: CreateCategoryInput,
+    @Ctx() ctx: Context
   ): Promise<Category> {
-    return await Category.create(input).save();
+    return create<Category>(Category, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -43,11 +57,10 @@ export class CategoryResolver {
   @Mutation(() => Category)
   async updateCategory(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateCategoryInput
+    @Arg('input') input: UpdateCategoryInput,
+    @Ctx() ctx: Context
   ): Promise<Category> {
-    const category = await Category.findOne(id);
-    await Category.merge(category, input);
-    return await category.save();
+    return update<Category>(Category, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -55,9 +68,10 @@ export class CategoryResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteCategory(@Arg('id') id: number): Promise<Boolean> {
-    const category = await Category.findOne(id);
-    await category.remove();
-    return true;
+  async deleteCategory(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(Category, id, ctx, { isOwner: true });
   }
 }

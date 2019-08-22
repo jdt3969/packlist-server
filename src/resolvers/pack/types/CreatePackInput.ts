@@ -6,4 +6,10 @@ import { Pack } from '@/entities/Pack';
 export class CreatePackInput implements Partial<Pack> {
   @Field()
   name: string;
+
+  @Field()
+  description: string;
+
+  @Field()
+  isPrivate: boolean;
 }

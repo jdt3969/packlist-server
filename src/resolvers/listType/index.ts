@@ -1,28 +1,42 @@
-import { Resolver, Query, Mutation, Arg, UseMiddleware } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 
 import { ListType } from '@/entities/ListType';
 
+import { Auth } from '@/middleware/Auth';
+
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Context } from '@/types/Context';
 import { CreateListTypeInput } from './types/CreateListTypeInput';
 import { UpdateListTypeInput } from './types/UpdateListTypeInput';
 
-import { Auth } from '@/middleware/Auth';
-
 @Resolver(() => ListType)
 export class ListTypeResolver {
+  /*
   //////////////////////////////////////////////////////////////////////////////
   // Get all ListType rows
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [ListType])
   async listTypes(): Promise<ListType[]> {
-    return ListType.find();
+    return getAll<ListType>(ListType);
   }
 
   //////////////////////////////////////////////////////////////////////////////
   // Get ListType by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => ListType)
-  async listType(@Arg('id') id: number): Promise<ListType> {
-    return ListType.findOne(id);
+  async listType(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<ListType> {
+    return getOne<ListType>(ListType, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -31,9 +45,10 @@ export class ListTypeResolver {
   @UseMiddleware(Auth())
   @Mutation(() => ListType)
   async createListType(
-    @Arg('input') input: CreateListTypeInput
+    @Arg('input') input: CreateListTypeInput,
+    @Ctx() ctx: Context
   ): Promise<ListType> {
-    return await ListType.create(input).save();
+    return create<ListType>(ListType, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -43,11 +58,10 @@ export class ListTypeResolver {
   @Mutation(() => ListType)
   async updateListType(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateListTypeInput
+    @Arg('input') input: UpdateListTypeInput,
+    @Ctx() ctx: Context
   ): Promise<ListType> {
-    const listType = await ListType.findOne(id);
-    await ListType.merge(listType, input);
-    return await listType.save();
+    return update<ListType>(ListType, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -55,9 +69,11 @@ export class ListTypeResolver {
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteListType(@Arg('id') id: number): Promise<Boolean> {
-    const listType = await ListType.findOne(id);
-    await listType.remove();
-    return true;
+  async deleteListType(
+    @Arg('id') id: number,
+    @Ctx() ctx: Context
+  ): Promise<Boolean> {
+    return destroy(ListType, id, ctx, { isOwner: true });
   }
+  */
 }
