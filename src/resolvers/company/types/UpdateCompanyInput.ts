@@ -9,4 +9,7 @@ export class UpdateCompanyInput implements Partial<Company> {
 
   @Field({ nullable: true })
   url?: string;
+
+  @Field({ nullable: true })
+  imageUrl?: string;
 }

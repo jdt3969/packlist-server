@@ -7,71 +7,71 @@ import {
   Ctx,
 } from 'type-graphql';
 
-import { UnitOfMeasure } from '@/entities/UnitOfMeasure';
+import { PackItem } from '@/entities/PackItem';
 
 import { Auth } from '@/middleware/Auth';
 
 import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
 
 import { Context } from '@/types/Context';
-import { CreateUnitOfMeasureInput } from './types/CreateUnitOfMeasureInput';
-import { UpdateUnitOfMeasureInput } from './types/UpdateUnitOfMeasureInput';
+import { CreatePackItemInput } from './types/CreatePackItemInput';
+import { UpdatePackItemInput } from './types/UpdatePackItemInput';
 
-@Resolver(() => UnitOfMeasure)
-export class UnitOfMeasureResolver {
+@Resolver(() => PackItem)
+export class PackItemResolver {
   //////////////////////////////////////////////////////////////////////////////
-  // Get all UnitOfMeasure rows
+  // Get all PackItem rows
   //////////////////////////////////////////////////////////////////////////////
-  @Query(() => [UnitOfMeasure])
-  async unitOfMeasures(): Promise<UnitOfMeasure[]> {
-    return getAll<UnitOfMeasure>(UnitOfMeasure);
+  @Query(() => [PackItem])
+  async packItems(): Promise<PackItem[]> {
+    return getAll<PackItem>(PackItem);
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Get UnitOfMeasure by id
+  // Get PackItem by id
   //////////////////////////////////////////////////////////////////////////////
-  @Query(() => UnitOfMeasure)
-  async unitOfMeasure(
+  @Query(() => PackItem)
+  async packItem(
     @Arg('id') id: number,
     @Ctx() ctx: Context
-  ): Promise<UnitOfMeasure> {
-    return getOne<UnitOfMeasure>(UnitOfMeasure, id, ctx);
+  ): Promise<PackItem> {
+    return getOne<PackItem>(PackItem, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Create UnitOfMeasure
+  // Create PackItem
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
-  @Mutation(() => UnitOfMeasure)
-  async createUnitOfMeasure(
-    @Arg('input') input: CreateUnitOfMeasureInput,
+  @Mutation(() => PackItem)
+  async createPackItem(
+    @Arg('input') input: CreatePackItemInput,
     @Ctx() ctx: Context
-  ): Promise<UnitOfMeasure> {
-    return create<UnitOfMeasure>(UnitOfMeasure, input, ctx);
+  ): Promise<PackItem> {
+    return create<PackItem>(PackItem, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Update UnitOfMeasure
+  // Update PackItem
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
-  @Mutation(() => UnitOfMeasure)
-  async updateUnitOfMeasure(
+  @Mutation(() => PackItem)
+  async updatePackItem(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateUnitOfMeasureInput,
+    @Arg('input') input: UpdatePackItemInput,
     @Ctx() ctx: Context
-  ): Promise<UnitOfMeasure> {
-    return update<UnitOfMeasure>(UnitOfMeasure, id, input, ctx);
+  ): Promise<PackItem> {
+    return update<PackItem>(PackItem, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Delete UnitOfMeasure
+  // Delete PackItem
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteUnitOfMeasure(
+  async deletePackItem(
     @Arg('id') id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
-    return destroy(UnitOfMeasure, id, ctx, { isOwner: true });
+    return destroy(PackItem, id, ctx, { isOwner: true });
   }
 }

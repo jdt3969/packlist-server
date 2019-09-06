@@ -9,4 +9,7 @@ export class CreateCompanyInput implements Partial<Company> {
 
   @Field()
   url: string;
+
+  @Field()
+  imageUrl: string;
 }

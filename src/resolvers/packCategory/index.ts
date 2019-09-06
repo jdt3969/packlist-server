@@ -7,71 +7,73 @@ import {
   Ctx,
 } from 'type-graphql';
 
-import { UnitOfMeasure } from '@/entities/UnitOfMeasure';
+import { PackCategory } from '@/entities/PackCategory';
 
 import { Auth } from '@/middleware/Auth';
 
 import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
 
 import { Context } from '@/types/Context';
-import { CreateUnitOfMeasureInput } from './types/CreateUnitOfMeasureInput';
-import { UpdateUnitOfMeasureInput } from './types/UpdateUnitOfMeasureInput';
+import { CreatePackCategoryInput } from './types/CreatePackCategoryInput';
+import { UpdatePackCategoryInput } from './types/UpdatePackCategoryInput';
 
-@Resolver(() => UnitOfMeasure)
-export class UnitOfMeasureResolver {
+@Resolver(() => PackCategory)
+export class PackCategoryResolver {
   //////////////////////////////////////////////////////////////////////////////
-  // Get all UnitOfMeasure rows
+  // Get all PackCategory rows
   //////////////////////////////////////////////////////////////////////////////
-  @Query(() => [UnitOfMeasure])
-  async unitOfMeasures(): Promise<UnitOfMeasure[]> {
-    return getAll<UnitOfMeasure>(UnitOfMeasure);
+  @Query(() => [PackCategory])
+  async packCategories(): Promise<PackCategory[]> {
+    return getAll<PackCategory>(PackCategory);
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Get UnitOfMeasure by id
+  // Get PackCategory by id
   //////////////////////////////////////////////////////////////////////////////
-  @Query(() => UnitOfMeasure)
-  async unitOfMeasure(
+  @Query(() => PackCategory)
+  async packCategory(
     @Arg('id') id: number,
     @Ctx() ctx: Context
-  ): Promise<UnitOfMeasure> {
-    return getOne<UnitOfMeasure>(UnitOfMeasure, id, ctx);
+  ): Promise<PackCategory> {
+    return getOne<PackCategory>(PackCategory, id, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Create UnitOfMeasure
+  // Create PackCategory
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
-  @Mutation(() => UnitOfMeasure)
-  async createUnitOfMeasure(
-    @Arg('input') input: CreateUnitOfMeasureInput,
+  @Mutation(() => PackCategory)
+  async createPackCategory(
+    @Arg('input') input: CreatePackCategoryInput,
     @Ctx() ctx: Context
-  ): Promise<UnitOfMeasure> {
-    return create<UnitOfMeasure>(UnitOfMeasure, input, ctx);
+  ): Promise<PackCategory> {
+    return create<PackCategory>(PackCategory, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Update UnitOfMeasure
+  // Update PackCategory
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
-  @Mutation(() => UnitOfMeasure)
-  async updateUnitOfMeasure(
+  @Mutation(() => PackCategory)
+  async updatePackCategory(
     @Arg('id') id: number,
-    @Arg('input') input: UpdateUnitOfMeasureInput,
+    @Arg('input') input: UpdatePackCategoryInput,
     @Ctx() ctx: Context
-  ): Promise<UnitOfMeasure> {
-    return update<UnitOfMeasure>(UnitOfMeasure, id, input, ctx);
+  ): Promise<PackCategory> {
+    return update<PackCategory>(PackCategory, id, input, ctx, {
+      isOwner: true,
+    });
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // Delete UnitOfMeasure
+  // Delete PackCategory
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
-  async deleteUnitOfMeasure(
+  async deletePackCategory(
     @Arg('id') id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
-    return destroy(UnitOfMeasure, id, ctx, { isOwner: true });
+    return destroy(PackCategory, id, ctx, { isOwner: true });
   }
 }

@@ -5,6 +5,9 @@ import { UserItem } from '@/entities/UserItem';
 @InputType()
 export class UpdateUserItemInput implements Partial<UserItem> {
   @Field({ nullable: true })
+  isOwned?: boolean;
+
+  @Field({ nullable: true })
   userId?: number;
 
   @Field({ nullable: true })
