@@ -10,6 +10,7 @@ import { ObjectType, Field, ID } from 'type-graphql';
 
 import { User } from './User';
 import { UserItem } from './UserItem';
+import { PackCategory } from './PackCategory';
 
 @ObjectType()
 @Entity()
@@ -29,4 +30,10 @@ export class Category extends BaseEntity {
 
   @OneToMany(() => UserItem, (userItem: UserItem) => userItem.category)
   userItems: UserItem[];
+
+  @OneToMany(
+    () => PackCategory,
+    (packCategory: PackCategory) => packCategory.category
+  )
+  packCategories: PackCategory[];
 }

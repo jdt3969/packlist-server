@@ -51,7 +51,7 @@ type Create = <T>(
   ctx?: Context,
   options?: CreateOptions
 ) => Promise<T>;
-export const create: Create = async (Entity, input, ctx, options) => {
+export const create: Create = async (Entity, input, ctx, options = {}) => {
   const data = {
     ...input,
     ...(options.addOwner ? { userId: ctx.user.id } : {}),
@@ -71,7 +71,7 @@ type Update = <T>(
   ctx?: Context,
   options?: UpdateOptions
 ) => Promise<T>;
-export const update: Update = async (Entity, id, input, ctx, options) => {
+export const update: Update = async (Entity, id, input, ctx, options = {}) => {
   const entity = await Entity.findOne(id);
 
   if (!entity) throw new Error('Does not exist');
@@ -92,7 +92,7 @@ type Destroy = (
   ctx?: Context,
   options?: DestroyOptions
 ) => Promise<Boolean>;
-export const destroy: Destroy = async (Entity, id, ctx, options) => {
+export const destroy: Destroy = async (Entity, id, ctx, options = {}) => {
   const entity = await Entity.findOne(id);
 
   if (!entity) throw new Error('Does not exist');

@@ -32,7 +32,7 @@ export class ItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => Item)
   async item(@Arg('id') id: number, @Ctx() ctx: Context): Promise<Item> {
-    return getOne<Item>(Item, id, ctx, { isOwner: true });
+    return getOne<Item>(Item, id, ctx);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ export class ItemResolver {
     @Arg('input') input: CreateItemInput,
     @Ctx() ctx: Context
   ): Promise<Item> {
-    return create<Item>(Item, input, ctx, { addOwner: true });
+    return create<Item>(Item, input, ctx);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ export class ItemResolver {
     @Arg('input') input: UpdateItemInput,
     @Ctx() ctx: Context
   ): Promise<Item> {
-    return update<Item>(Item, id, input, ctx, { isOwner: true });
+    return update<Item>(Item, id, input, ctx);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -69,6 +69,6 @@ export class ItemResolver {
     @Arg('id') id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
-    return destroy(Item, id, ctx, { isOwner: true });
+    return destroy(Item, id, ctx);
   }
 }

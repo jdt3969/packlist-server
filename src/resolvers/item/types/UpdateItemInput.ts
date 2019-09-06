@@ -14,6 +14,9 @@ export class UpdateItemInput implements Partial<Item> {
   weight?: number;
 
   @Field({ nullable: true })
+  imageUrl?: string;
+
+  @Field({ nullable: true })
   companyId?: number;
 
   @Field({ nullable: true })

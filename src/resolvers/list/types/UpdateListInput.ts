@@ -1,8 +1,0 @@
-import { InputType, Field } from 'type-graphql';
-
-import { List } from '@/entities/List';
-
-@InputType()
-export class UpdateListInput implements Partial<List> {
-  id: number;
-}

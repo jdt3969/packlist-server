@@ -1,35 +1,37 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  ManyToOne,
   BaseEntity,
   Column,
+  ManyToOne,
 } from 'typeorm';
 import { ObjectType, Field, ID } from 'type-graphql';
-
 import { UserItem } from './UserItem';
-import { Pack } from './Pack';
+import { PackCategory } from './PackCategory';
 
 @ObjectType()
 @Entity()
-export class PackUserItem extends BaseEntity {
+export class PackItem extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @Field()
-  @Column({ default: false })
+  @Column()
   isWorn: boolean;
 
   @Field(() => UserItem)
-  @ManyToOne(() => UserItem, (userItem: UserItem) => userItem.packUserItems)
+  @ManyToOne(() => UserItem, (userItem: UserItem) => userItem.packItems)
   userItem: UserItem;
   @Column()
   userItemId: number;
 
-  @Field(() => Pack)
-  @ManyToOne(() => Pack, (pack: Pack) => pack.packUserItems)
-  pack: Pack;
+  @Field(() => PackCategory)
+  @ManyToOne(
+    () => PackCategory,
+    (packCategory: PackCategory) => packCategory.packItems
+  )
+  packCategory: PackCategory;
   @Column()
-  packId: number;
+  packCategoryId: number;
 }

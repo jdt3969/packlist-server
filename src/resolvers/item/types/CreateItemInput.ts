@@ -14,6 +14,9 @@ export class CreateItemInput implements Partial<Item> {
   weight: number;
 
   @Field()
+  imageUrl: string;
+
+  @Field()
   companyId: number;
 
   @Field()

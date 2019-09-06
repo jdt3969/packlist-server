@@ -31,18 +31,18 @@ export class UserResolver {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return { user: null, token: null, success: false };
+      throw new Error('Email or password was incorrect');
     }
 
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
-      return { user: null, token: null, success: false };
+      throw new Error('Email or password was incorrect');
     }
 
     const token = sign(user);
 
-    return { user, token, success: true };
+    return { user, token };
   }
 
   //////////////////////////////////////////////////////////////////////////////

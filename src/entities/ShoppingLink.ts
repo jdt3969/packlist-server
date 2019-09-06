@@ -20,7 +20,6 @@ export class ShoppingLink extends BaseEntity {
   @Column()
   url: string;
 
-  @Field(() => Item)
   @ManyToOne(() => Item, (item: Item) => item.shoppingLinks)
   item: Item;
   @Column()

@@ -9,7 +9,7 @@ import {
 import { ObjectType, Field, ID } from 'type-graphql';
 
 import { User } from './User';
-import { PackUserItem } from './PackUserItem';
+import { PackCategory } from './PackCategory';
 
 @ObjectType()
 @Entity()
@@ -36,10 +36,10 @@ export class Pack extends BaseEntity {
   @Column()
   userId: number;
 
-  @Field(() => [PackUserItem])
+  @Field(() => [PackCategory])
   @OneToMany(
-    () => PackUserItem,
-    (packUserItem: PackUserItem) => packUserItem.pack
+    () => PackCategory,
+    (packCategory: PackCategory) => packCategory.pack
   )
-  packUserItems: PackUserItem[];
+  packCategories: PackCategory[];
 }

@@ -23,6 +23,10 @@ export class Company extends BaseEntity {
   @Column()
   url: string;
 
+  @Field()
+  @Column()
+  imageUrl: string;
+
   @Field(() => [Item])
   @OneToMany(() => Item, (item: Item) => item.company)
   items: Item[];

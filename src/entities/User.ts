@@ -10,7 +10,6 @@ import { ObjectType, Field, ID, Root } from 'type-graphql';
 import { Category } from './Category';
 import { UserItem } from './UserItem';
 import { Pack } from './Pack';
-import { List } from './List';
 
 @ObjectType()
 @Entity()
@@ -50,8 +49,4 @@ export class User extends BaseEntity {
   @Field(() => [Pack])
   @OneToMany(() => Pack, (pack: Pack) => pack.user)
   packs: Pack[];
-
-  @Field(() => [List])
-  @OneToMany(() => List, (list: List) => list.user)
-  lists: List[];
 }

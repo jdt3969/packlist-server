@@ -11,8 +11,7 @@ import { ObjectType, Field, ID } from 'type-graphql';
 import { User } from './User';
 import { Item } from './Item';
 import { Category } from './Category';
-import { PackUserItem } from './PackUserItem';
-import { ListUserItem } from './ListUserItem';
+import { PackItem } from './PackItem';
 
 @ObjectType()
 @Entity()
@@ -21,17 +20,15 @@ export class UserItem extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
+  @Column()
+  isOwned: boolean;
+
   @Field(() => User)
   @ManyToOne(() => User, (user: User) => user.userItems)
   user: User;
   @Column()
   userId: number;
-
-  @Field(() => Item)
-  @ManyToOne(() => Item, (item: Item) => item.userItems)
-  item: Item;
-  @Column()
-  itemId: number;
 
   @Field(() => Category)
   @ManyToOne(() => Category, (category: Category) => category.userItems)
@@ -39,15 +36,12 @@ export class UserItem extends BaseEntity {
   @Column()
   categoryId: number;
 
-  @OneToMany(
-    () => PackUserItem,
-    (packUserItem: PackUserItem) => packUserItem.userItem
-  )
-  packUserItems: PackUserItem[];
+  @Field(() => Item)
+  @ManyToOne(() => Item, (item: Item) => item.userItems)
+  item: Item;
+  @Column()
+  itemId: number;
 
-  @OneToMany(
-    () => ListUserItem,
-    (listUserItem: ListUserItem) => listUserItem.userItem
-  )
-  listUserItems: ListUserItem[];
+  @OneToMany(() => PackItem, (packItem: PackItem) => packItem.userItem)
+  packItems: PackItem[];
 }
