@@ -22,17 +22,12 @@ export class User extends BaseEntity {
   password: string;
 
   @Field()
-  @Column()
+  @Column({ default: '' })
   firstName: string;
 
   @Field()
-  @Column()
+  @Column({ default: '' })
   lastName: string;
-
-  @Field()
-  name(@Root() parent: User): string {
-    return `${parent.firstName} ${parent.lastName}`;
-  }
 
   @Field()
   @Column('text', { unique: true })

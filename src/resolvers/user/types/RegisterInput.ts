@@ -5,6 +5,7 @@ import { IsEmailAlreadyExist } from '@/utils/validators';
 
 @InputType()
 export class RegisterInput {
+  /*
   @Field()
   @Length(1, 30)
   firstName: string;
@@ -12,6 +13,7 @@ export class RegisterInput {
   @Field()
   @Length(1, 30)
   lastName: string;
+  */
 
   @Field()
   @IsEmail()

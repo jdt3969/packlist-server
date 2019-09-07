@@ -48,23 +48,21 @@ export class UserResolver {
   //////////////////////////////////////////////////////////////////////////////
   // Register
   //////////////////////////////////////////////////////////////////////////////
-  @Mutation(() => User)
+  @Mutation(() => LoginSuccess)
   async register(@Arg('input')
   {
-    firstName,
-    lastName,
     email,
     password,
-  }: RegisterInput): Promise<User> {
+  }: RegisterInput): Promise<LoginSuccess> {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await User.create({
-      firstName,
-      lastName,
       email,
       password: hashedPassword,
     }).save();
 
-    return user;
+    const token = sign(user);
+
+    return { user, token };
   }
 }
