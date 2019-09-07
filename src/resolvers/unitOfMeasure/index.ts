@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -32,7 +33,7 @@ export class UnitOfMeasureResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => UnitOfMeasure)
   async unitOfMeasure(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<UnitOfMeasure> {
     return getOne<UnitOfMeasure>(UnitOfMeasure, id, ctx);
@@ -56,7 +57,7 @@ export class UnitOfMeasureResolver {
   @UseMiddleware(Auth())
   @Mutation(() => UnitOfMeasure)
   async updateUnitOfMeasure(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: UpdateUnitOfMeasureInput,
     @Ctx() ctx: Context
   ): Promise<UnitOfMeasure> {
@@ -69,7 +70,7 @@ export class UnitOfMeasureResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async deleteUnitOfMeasure(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(UnitOfMeasure, id, ctx, { isOwner: true });

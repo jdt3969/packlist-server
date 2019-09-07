@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -32,7 +33,7 @@ export class PackCategoryResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => PackCategory)
   async packCategory(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<PackCategory> {
     return getOne<PackCategory>(PackCategory, id, ctx, { isOwner: true });
@@ -56,7 +57,7 @@ export class PackCategoryResolver {
   @UseMiddleware(Auth())
   @Mutation(() => PackCategory)
   async updatePackCategory(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: UpdatePackCategoryInput,
     @Ctx() ctx: Context
   ): Promise<PackCategory> {
@@ -71,7 +72,7 @@ export class PackCategoryResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async deletePackCategory(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(PackCategory, id, ctx, { isOwner: true });

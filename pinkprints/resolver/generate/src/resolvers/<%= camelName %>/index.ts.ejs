@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -32,7 +33,7 @@ export class <%= name %>Resolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => <%= name %>)
   async <%= camelName %>(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<<%= name %>> {
     return getOne<<%= name %>>(<%= name %>, id, ctx, { isOwner: true });
@@ -56,7 +57,7 @@ export class <%= name %>Resolver {
   @UseMiddleware(Auth())
   @Mutation(() => <%= name %>)
   async update<%= name %>(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: Update<%= name %>Input,
     @Ctx() ctx: Context
   ): Promise<<%= name %>> {
@@ -69,7 +70,7 @@ export class <%= name %>Resolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async delete<%= name %>(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(<%= name %>, id, ctx, { isOwner: true });

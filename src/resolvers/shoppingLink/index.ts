@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -32,7 +33,7 @@ export class ShoppingLinkResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => ShoppingLink)
   async shoppingLink(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<ShoppingLink> {
     return getOne<ShoppingLink>(ShoppingLink, id, ctx, { isOwner: true });
@@ -56,7 +57,7 @@ export class ShoppingLinkResolver {
   @UseMiddleware(Auth())
   @Mutation(() => ShoppingLink)
   async updateShoppingLink(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: UpdateShoppingLinkInput,
     @Ctx() ctx: Context
   ): Promise<ShoppingLink> {
@@ -71,7 +72,7 @@ export class ShoppingLinkResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async deleteShoppingLink(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(ShoppingLink, id, ctx, { isOwner: true });

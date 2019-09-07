@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Arg, Authorized } from 'type-graphql';
+import { Resolver, ID, Query, Mutation, Arg } from 'type-graphql';
 import bcrypt from 'bcryptjs';
 
 import { User } from '@/entities/User';
@@ -15,7 +15,7 @@ export class UserResolver {
   // Get User By Id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => User)
-  async user(@Arg('id') id: number) {
+  async user(@Arg('id', () => ID) id: number) {
     const user = await User.findOne(id);
 
     return user;

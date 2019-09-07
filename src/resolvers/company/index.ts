@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -31,7 +32,10 @@ export class CompanyResolver {
   // Get Company by id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => Company)
-  async company(@Arg('id') id: number, @Ctx() ctx: Context): Promise<Company> {
+  async company(
+    @Arg('id', () => ID) id: number,
+    @Ctx() ctx: Context
+  ): Promise<Company> {
     return getOne<Company>(Company, id, ctx, { isOwner: true });
   }
 
@@ -53,7 +57,7 @@ export class CompanyResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Company)
   async updateCompany(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: UpdateCompanyInput,
     @Ctx() ctx: Context
   ): Promise<Company> {
@@ -66,7 +70,7 @@ export class CompanyResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async deleteCompany(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(Company, id, ctx, { isOwner: true });

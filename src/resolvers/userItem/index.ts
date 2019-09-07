@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -32,7 +33,7 @@ export class UserItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => UserItem)
   async userItem(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<UserItem> {
     return getOne<UserItem>(UserItem, id, ctx, { isOwner: true });
@@ -56,7 +57,7 @@ export class UserItemResolver {
   @UseMiddleware(Auth())
   @Mutation(() => UserItem)
   async updateUserItem(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: UpdateUserItemInput,
     @Ctx() ctx: Context
   ): Promise<UserItem> {
@@ -69,7 +70,7 @@ export class UserItemResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async deleteUserItem(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(UserItem, id, ctx, { isOwner: true });

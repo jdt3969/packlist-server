@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -32,7 +33,7 @@ export class PackItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => PackItem)
   async packItem(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<PackItem> {
     return getOne<PackItem>(PackItem, id, ctx, { isOwner: true });
@@ -56,7 +57,7 @@ export class PackItemResolver {
   @UseMiddleware(Auth())
   @Mutation(() => PackItem)
   async updatePackItem(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: UpdatePackItemInput,
     @Ctx() ctx: Context
   ): Promise<PackItem> {
@@ -69,7 +70,7 @@ export class PackItemResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async deletePackItem(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(PackItem, id, ctx, { isOwner: true });

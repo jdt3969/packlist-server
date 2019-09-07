@@ -1,5 +1,6 @@
 import {
   Resolver,
+  ID,
   Query,
   Mutation,
   Arg,
@@ -32,7 +33,7 @@ export class CategoryResolver {
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => Category)
   async category(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Category> {
     return getOne<Category>(Category, id, ctx, { isOwner: true });
@@ -56,7 +57,7 @@ export class CategoryResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Category)
   async updateCategory(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Arg('input') input: UpdateCategoryInput,
     @Ctx() ctx: Context
   ): Promise<Category> {
@@ -69,7 +70,7 @@ export class CategoryResolver {
   @UseMiddleware(Auth())
   @Mutation(() => Boolean)
   async deleteCategory(
-    @Arg('id') id: number,
+    @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
     return destroy(Category, id, ctx, { isOwner: true });
