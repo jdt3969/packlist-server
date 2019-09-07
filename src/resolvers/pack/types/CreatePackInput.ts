@@ -4,12 +4,12 @@ import { Pack } from '@/entities/Pack';
 
 @InputType()
 export class CreatePackInput implements Partial<Pack> {
-  @Field()
-  name: string;
+  @Field({ defaultValue: '' })
+  name?: string;
 
-  @Field()
-  description: string;
+  @Field({ defaultValue: '' })
+  description?: string;
 
-  @Field()
-  isPrivate: boolean;
+  @Field({ defaultValue: true })
+  isPrivate?: boolean;
 }
