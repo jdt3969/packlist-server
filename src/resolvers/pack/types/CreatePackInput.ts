@@ -7,7 +7,7 @@ export class CreatePackInput implements Partial<Pack> {
   @Field({ defaultValue: '' })
   name?: string;
 
-  @Field({ defaultValue: '' })
+  @Field({ nullable: true })
   description?: string;
 
   @Field({ defaultValue: true })
