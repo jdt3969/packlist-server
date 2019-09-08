@@ -1,4 +1,4 @@
-import { InputType, Field, ID } from 'type-graphql';
+import { InputType, Field, ID, Int } from 'type-graphql';
 
 import { Item } from '@/entities/Item';
 
@@ -7,7 +7,7 @@ export class UpdateItemInput implements Partial<Item> {
   @Field({ nullable: true })
   name?: string;
 
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   price?: number;
 
   @Field({ nullable: true })

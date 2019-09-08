@@ -6,7 +6,7 @@ import {
   BaseEntity,
   OneToMany,
 } from 'typeorm';
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Int } from 'type-graphql';
 
 import { Company } from './Company';
 import { UnitOfMeasure } from './UnitOfMeasure';
@@ -26,8 +26,8 @@ export class Item extends BaseEntity {
   @Column()
   name: string;
 
-  @Field()
-  @Column()
+  @Field(() => Int)
+  @Column('int')
   price: number;
 
   @Field()

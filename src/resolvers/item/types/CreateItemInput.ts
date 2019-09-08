@@ -1,4 +1,4 @@
-import { InputType, Field, ID } from 'type-graphql';
+import { InputType, Field, ID, Int } from 'type-graphql';
 
 import { Item } from '@/entities/Item';
 
@@ -7,7 +7,7 @@ export class CreateItemInput implements Partial<Item> {
   @Field()
   name: string;
 
-  @Field()
+  @Field(() => Int)
   price: number;
 
   @Field()
