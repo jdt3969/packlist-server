@@ -1,4 +1,4 @@
-import { InputType, Field } from 'type-graphql';
+import { InputType, Field, ID } from 'type-graphql';
 
 import { ShoppingLink } from '@/entities/ShoppingLink';
 
@@ -7,6 +7,6 @@ export class CreateShoppingLinkInput implements Partial<ShoppingLink> {
   @Field()
   url: string;
 
-  @Field()
+  @Field(() => ID)
   itemId: number;
 }

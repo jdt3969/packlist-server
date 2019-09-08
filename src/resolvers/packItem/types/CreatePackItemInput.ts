@@ -1,4 +1,4 @@
-import { InputType, Field } from 'type-graphql';
+import { InputType, Field, ID } from 'type-graphql';
 
 import { PackItem } from '@/entities/PackItem';
 
@@ -7,9 +7,9 @@ export class CreatePackItemInput implements Partial<PackItem> {
   @Field()
   isWorn: boolean;
 
-  @Field()
+  @Field(() => ID)
   userItemId: number;
 
-  @Field()
+  @Field(() => ID)
   packCategoryId: number;
 }

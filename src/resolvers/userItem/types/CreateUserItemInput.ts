@@ -1,4 +1,4 @@
-import { InputType, Field } from 'type-graphql';
+import { InputType, Field, ID } from 'type-graphql';
 
 import { UserItem } from '@/entities/UserItem';
 
@@ -7,12 +7,9 @@ export class CreateUserItemInput implements Partial<UserItem> {
   @Field()
   isOwned: boolean;
 
-  @Field()
-  userId: number;
-
-  @Field()
+  @Field(() => ID)
   itemId: number;
 
-  @Field()
+  @Field(() => ID)
   categoryId: number;
 }
