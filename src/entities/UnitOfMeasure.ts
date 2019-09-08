@@ -20,6 +20,10 @@ export class UnitOfMeasure extends BaseEntity {
   @Column()
   name: string;
 
+  @Field()
+  @Column()
+  symbol: string;
+
   @OneToMany(() => Item, (item: Item) => item.unitOfMeasure)
   items: Item[];
 }

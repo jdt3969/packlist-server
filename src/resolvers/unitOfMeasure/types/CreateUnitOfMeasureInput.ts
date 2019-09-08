@@ -6,4 +6,7 @@ import { UnitOfMeasure } from '@/entities/UnitOfMeasure';
 export class CreateUnitOfMeasureInput implements Partial<UnitOfMeasure> {
   @Field()
   name: string;
+
+  @Field()
+  symbol: string;
 }

@@ -6,4 +6,7 @@ import { UnitOfMeasure } from '@/entities/UnitOfMeasure';
 export class UpdateUnitOfMeasureInput implements Partial<UnitOfMeasure> {
   @Field({ nullable: true })
   name?: string;
+
+  @Field({ nullable: true })
+  symbol?: string;
 }
