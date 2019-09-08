@@ -12,6 +12,8 @@ import { Pack } from './Pack';
 import { Category } from './Category';
 import { PackItem } from './PackItem';
 
+import { Lazy } from '@/types/Lazy';
+
 @ObjectType()
 @Entity()
 export class PackCategory extends BaseEntity {
@@ -24,12 +26,17 @@ export class PackCategory extends BaseEntity {
   @Column()
   packId: number;
 
-  @ManyToOne(() => Category, (category: Category) => category.packCategories)
-  category: Category;
+  @Field(() => Category)
+  @ManyToOne(() => Category, (category: Category) => category.packCategories, {
+    lazy: true,
+  })
+  category: Lazy<Category>;
   @Column()
   categoryId: number;
 
   @Field(() => [PackItem])
-  @OneToMany(() => PackItem, (packItem: PackItem) => packItem.packCategory)
-  packItems: PackItem[];
+  @OneToMany(() => PackItem, (packItem: PackItem) => packItem.packCategory, {
+    lazy: true,
+  })
+  packItems: Lazy<PackItem[]>;
 }

@@ -11,6 +11,8 @@ import { ObjectType, Field, ID } from 'type-graphql';
 import { User } from './User';
 import { PackCategory } from './PackCategory';
 
+import { Lazy } from '@/types/Lazy';
+
 @ObjectType()
 @Entity()
 export class Pack extends BaseEntity {
@@ -31,15 +33,16 @@ export class Pack extends BaseEntity {
   isPrivate: boolean;
 
   @Field(() => User)
-  @ManyToOne(() => User, (user: User) => user.packs)
-  user: User;
+  @ManyToOne(() => User, (user: User) => user.packs, { lazy: true })
+  user: Lazy<User>;
   @Column()
   userId: number;
 
   @Field(() => [PackCategory])
   @OneToMany(
     () => PackCategory,
-    (packCategory: PackCategory) => packCategory.pack
+    (packCategory: PackCategory) => packCategory.pack,
+    { lazy: true }
   )
-  packCategories: PackCategory[];
+  packCategories: Lazy<PackCategory[]>;
 }

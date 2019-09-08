@@ -6,6 +6,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ObjectType, Field, ID } from 'type-graphql';
+
 import { Item } from './Item';
 
 @ObjectType()
@@ -27,7 +28,6 @@ export class Company extends BaseEntity {
   @Column()
   imageUrl: string;
 
-  @Field(() => [Item])
   @OneToMany(() => Item, (item: Item) => item.company)
   items: Item[];
 }

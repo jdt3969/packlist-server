@@ -13,6 +13,8 @@ import { UnitOfMeasure } from './UnitOfMeasure';
 import { UserItem } from './UserItem';
 import { ShoppingLink } from './ShoppingLink';
 
+import { Lazy } from '@/types/Lazy';
+
 @ObjectType()
 @Entity()
 export class Item extends BaseEntity {
@@ -37,17 +39,18 @@ export class Item extends BaseEntity {
   imageUrl: string;
 
   @Field(() => Company)
-  @ManyToOne(() => Company, (company: Company) => company.items)
-  company: Company;
+  @ManyToOne(() => Company, (company: Company) => company.items, { lazy: true })
+  company: Lazy<Company>;
   @Column()
   companyId: number;
 
   @Field(() => UnitOfMeasure)
   @ManyToOne(
     () => UnitOfMeasure,
-    (unitOfMeasure: UnitOfMeasure) => unitOfMeasure.items
+    (unitOfMeasure: UnitOfMeasure) => unitOfMeasure.items,
+    { lazy: true }
   )
-  unitOfMeasure: UnitOfMeasure;
+  unitOfMeasure: Lazy<UnitOfMeasure>;
   @Column()
   unitOfMeasureId: number;
 
@@ -57,7 +60,8 @@ export class Item extends BaseEntity {
   @Field(() => [ShoppingLink])
   @OneToMany(
     () => ShoppingLink,
-    (shoppingLink: ShoppingLink) => shoppingLink.item
+    (shoppingLink: ShoppingLink) => shoppingLink.item,
+    { lazy: true }
   )
-  shoppingLinks: ShoppingLink[];
+  shoppingLinks: Lazy<ShoppingLink[]>;
 }

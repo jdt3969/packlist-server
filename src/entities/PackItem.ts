@@ -9,6 +9,8 @@ import { ObjectType, Field, ID } from 'type-graphql';
 import { UserItem } from './UserItem';
 import { PackCategory } from './PackCategory';
 
+import { Lazy } from '@/types/Lazy';
+
 @ObjectType()
 @Entity()
 export class PackItem extends BaseEntity {
@@ -21,12 +23,13 @@ export class PackItem extends BaseEntity {
   isWorn: boolean;
 
   @Field(() => UserItem)
-  @ManyToOne(() => UserItem, (userItem: UserItem) => userItem.packItems)
-  userItem: UserItem;
+  @ManyToOne(() => UserItem, (userItem: UserItem) => userItem.packItems, {
+    lazy: true,
+  })
+  userItem: Lazy<UserItem>;
   @Column()
   userItemId: number;
 
-  @Field(() => PackCategory)
   @ManyToOne(
     () => PackCategory,
     (packCategory: PackCategory) => packCategory.packItems

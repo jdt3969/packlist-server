@@ -11,6 +11,8 @@ import { Category } from './Category';
 import { UserItem } from './UserItem';
 import { Pack } from './Pack';
 
+import { Lazy } from '@/types/Lazy';
+
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
@@ -33,15 +35,13 @@ export class User extends BaseEntity {
   @Column('text', { unique: true })
   email: string;
 
-  @Field(() => [Category])
   @OneToMany(() => Category, (category: Category) => category.user)
   categories: Category[];
 
-  @Field(() => [UserItem])
   @OneToMany(() => UserItem, (userItem: UserItem) => userItem.user)
   userItems: UserItem[];
 
   @Field(() => [Pack])
-  @OneToMany(() => Pack, (pack: Pack) => pack.user)
-  packs: Pack[];
+  @OneToMany(() => Pack, (pack: Pack) => pack.user, { lazy: true })
+  packs: Lazy<Pack[]>;
 }
