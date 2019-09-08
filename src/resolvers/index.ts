@@ -6,6 +6,7 @@ import { CompanyResolver } from './company';
 import { ItemResolver } from './item';
 import { PackResolver } from './pack';
 import { PackCategoryResolver } from './packCategory';
+import { PackItemResolver } from './packItem';
 import { ShoppingLinkResolver } from './shoppingLink';
 import { UnitOfMeasureResolver } from './unitOfMeasure';
 import { UserResolver } from './user';
@@ -17,6 +18,7 @@ export default [
   ItemResolver,
   PackResolver,
   PackCategoryResolver,
+  PackItemResolver,
   ShoppingLinkResolver,
   UnitOfMeasureResolver,
   UserResolver,
