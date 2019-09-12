@@ -5,7 +5,7 @@ import {
   Column,
   ManyToOne,
 } from 'typeorm';
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Int } from 'type-graphql';
 import { UserItem } from './UserItem';
 import { PackCategory } from './PackCategory';
 
@@ -21,6 +21,10 @@ export class PackItem extends BaseEntity {
   @Field()
   @Column()
   isWorn: boolean;
+
+  @Field(() => Int)
+  @Column('int', { default: 1 })
+  quantity: number;
 
   @Field(() => UserItem)
   @ManyToOne(() => UserItem, (userItem: UserItem) => userItem.packItems, {

@@ -1,4 +1,4 @@
-import { InputType, Field, ID } from 'type-graphql';
+import { InputType, Field, ID, Int } from 'type-graphql';
 
 import { PackItem } from '@/entities/PackItem';
 
@@ -7,8 +7,8 @@ export class UpdatePackItemInput implements Partial<PackItem> {
   @Field({ nullable: true })
   isWorn?: boolean;
 
-  @Field(() => ID, { nullable: true })
-  userItemId?: number;
+  @Field(() => Int, { nullable: true })
+  quantity?: number;
 
   @Field(() => ID, { nullable: true })
   packCategoryId?: number;
