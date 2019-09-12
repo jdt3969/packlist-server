@@ -6,8 +6,10 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { ObjectType, Field, ID, Int } from 'type-graphql';
+
 import { UserItem } from './UserItem';
 import { PackCategory } from './PackCategory';
+import { User } from './User';
 
 import { Lazy } from '@/types/Lazy';
 
@@ -41,4 +43,9 @@ export class PackItem extends BaseEntity {
   packCategory: PackCategory;
   @Column()
   packCategoryId: number;
+
+  @ManyToOne(() => User, (user: User) => user.packItems, { lazy: true })
+  user: User;
+  @Column()
+  userId: number;
 }
