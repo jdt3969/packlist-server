@@ -1,18 +1,48 @@
-import { BaseEntity } from 'typeorm';
 import { Context } from '@/types/Context';
 import { BaseEntityWithUser } from '@/types/Entity';
-
 ////////////////////////////////////////////////////////////////////////////////
 // Option Types
 ////////////////////////////////////////////////////////////////////////////////
 type IsOwnerOption = {
   isOwner?: boolean;
+  getOwnerId?: (entity: any) => Promise<number> | number;
 };
 
 type AddOwnerOption = {
   addOwner?: boolean;
 };
 
+type AllOptions = IsOwnerOption & AddOwnerOption;
+////////////////////////////////////////////////////////////////////////////////
+// Validate
+////////////////////////////////////////////////////////////////////////////////
+type ValidateOwner = (
+  entity: any,
+  userId: number,
+  options?: AllOptions
+) => void;
+const validateOwner: ValidateOwner = async (entity, userId, options = {}) => {
+  const ownerId = (await options.getOwnerId)
+    ? options.getOwnerId(entity)
+    : (entity as BaseEntityWithUser).userId;
+
+  console.log('Requestor', userId);
+  console.log('Owner:', ownerId);
+
+  if (ownerId !== userId) {
+    throw new Error('You do not have access');
+  }
+};
+type Validate = (entity: any, ctx?: Context, options?: AllOptions) => void;
+const validate: Validate = async (entity, ctx, options) => {
+  if (!entity) {
+    throw new Error('Does not exist');
+  }
+
+  if (options.isOwner) {
+    await validateOwner(entity, ctx.user.id, options);
+  }
+};
 ////////////////////////////////////////////////////////////////////////////////
 // Get All
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,9 +64,7 @@ type GetOne = <T>(
 export const getOne: GetOne = async (Entity, id, ctx, options = {}) => {
   const entity = await Entity.findOne(id);
 
-  if (!entity) throw new Error('Does not exist');
-  if (options.isOwner && (entity as BaseEntityWithUser).userId !== ctx.user.id)
-    throw new Error('You do not have access');
+  await validate(entity, ctx, options);
 
   return entity;
 };
@@ -74,11 +102,10 @@ type Update = <T>(
 export const update: Update = async (Entity, id, input, ctx, options = {}) => {
   const entity = await Entity.findOne(id);
 
-  if (!entity) throw new Error('Does not exist');
-  if (options.isOwner && (entity as BaseEntityWithUser).userId !== ctx.user.id)
-    throw new Error('You do not have access');
+  await validate(entity, ctx, options);
 
   await Entity.merge(entity, input);
+
   return await entity.save();
 };
 
@@ -95,10 +122,9 @@ type Destroy = (
 export const destroy: Destroy = async (Entity, id, ctx, options = {}) => {
   const entity = await Entity.findOne(id);
 
-  if (!entity) throw new Error('Does not exist');
-  if (options.isOwner && (entity as BaseEntityWithUser).userId !== ctx.user.id)
-    throw new Error('You do not have access');
+  await validate(entity, ctx, options);
 
   await entity.remove();
+
   return true;
 };
