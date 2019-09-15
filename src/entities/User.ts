@@ -5,7 +5,7 @@ import {
   BaseEntity,
   OneToMany,
 } from 'typeorm';
-import { ObjectType, Field, ID, Root } from 'type-graphql';
+import { ObjectType, Field, ID } from 'type-graphql';
 
 import { Category } from './Category';
 import { UserItem } from './UserItem';
@@ -31,6 +31,10 @@ export class User extends BaseEntity {
   @Field()
   @Column({ default: '' })
   lastName: string;
+
+  @Field()
+  @Column({ default: '' })
+  imageUrl: string;
 
   @Field()
   @Column('text', { unique: true })

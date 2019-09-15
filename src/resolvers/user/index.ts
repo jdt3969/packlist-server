@@ -1,13 +1,26 @@
-import { Resolver, ID, Query, Mutation, Arg } from 'type-graphql';
+import {
+  Resolver,
+  ID,
+  Query,
+  Mutation,
+  Arg,
+  UseMiddleware,
+  Ctx,
+} from 'type-graphql';
 import bcrypt from 'bcryptjs';
 
 import { User } from '@/entities/User';
 
 import { sign } from '@/utils/jwt';
+import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+
+import { Auth } from '@/middleware/Auth';
 
 import { RegisterInput } from './types/RegisterInput';
 import { LoginInput } from './types/LoginInput';
 import { LoginSuccess } from './types/LoginSuccess';
+import { UpdateUserInput } from './types/UpdateUserInput';
+import { Context } from '@/types/Context';
 
 @Resolver()
 export class UserResolver {
@@ -15,10 +28,11 @@ export class UserResolver {
   // Get User By Id
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => User)
-  async user(@Arg('id', () => ID) id: number) {
-    const user = await User.findOne(id);
-
-    return user;
+  async user(
+    @Arg('id', () => ID) id: number,
+    @Ctx() ctx: Context
+  ): Promise<User> {
+    return getOne<User>(User, id, ctx);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -64,5 +78,20 @@ export class UserResolver {
     const token = sign(user);
 
     return { user, token };
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Update User
+  //////////////////////////////////////////////////////////////////////////////
+  @UseMiddleware(Auth())
+  @Mutation(() => User)
+  async updateUser(
+    @Arg('input') input: UpdateUserInput,
+    @Ctx() ctx: Context
+  ): Promise<User> {
+    return update<User>(User, ctx.user.id, input, ctx, {
+      isOwner: true,
+      getOwnerId: (user) => user.id,
+    });
   }
 }
