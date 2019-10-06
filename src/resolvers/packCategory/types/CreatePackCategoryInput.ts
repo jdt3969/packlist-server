@@ -1,12 +1,10 @@
-import { InputType, Field, ID } from 'type-graphql';
-
-import { PackCategory } from '@/entities/PackCategory';
+import { InputType, Field } from 'type-graphql';
 
 @InputType()
-export class CreatePackCategoryInput implements Partial<PackCategory> {
+export class CreatePackCategoryInput {
   @Field()
   packId: number;
 
-  @Field(() => ID)
-  categoryId: number;
+  @Field()
+  categoryName: string;
 }

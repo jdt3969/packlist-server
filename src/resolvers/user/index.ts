@@ -12,7 +12,8 @@ import bcrypt from 'bcryptjs';
 import { User } from '@/entities/User';
 
 import { sign } from '@/utils/jwt';
-import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+import { getOne, update } from '@/utils/resolvers';
+import { InvalidCredentialsError } from '@/utils/errors';
 
 import { Auth } from '@/middleware/Auth';
 
@@ -45,13 +46,13 @@ export class UserResolver {
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new Error('Email or password was incorrect');
+      throw InvalidCredentialsError();
     }
 
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
-      throw new Error('Email or password was incorrect');
+      throw InvalidCredentialsError();
     }
 
     const token = sign(user);

@@ -1,3 +1,7 @@
+import { FindManyOptions } from 'typeorm';
+
+import { NotAuthorizedError, NotFoundError } from './errors';
+
 import { Context } from '@/types/Context';
 import { BaseEntityWithUser } from '@/types/Entity';
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,21 +26,18 @@ type ValidateOwner = (
   options?: AllOptions
 ) => void;
 const validateOwner: ValidateOwner = async (entity, userId, options = {}) => {
-  const ownerId = (await options.getOwnerId)
+  const ownerId = await (options.getOwnerId
     ? options.getOwnerId(entity)
-    : (entity as BaseEntityWithUser).userId;
-
-  console.log('Requestor', userId);
-  console.log('Owner:', ownerId);
+    : (entity as BaseEntityWithUser).userId);
 
   if (ownerId !== userId) {
-    throw new Error('You do not have access');
+    throw NotAuthorizedError();
   }
 };
 type Validate = (entity: any, ctx?: Context, options?: AllOptions) => void;
-const validate: Validate = async (entity, ctx, options) => {
+export const validate: Validate = async (entity, ctx, options) => {
   if (!entity) {
-    throw new Error('Does not exist');
+    throw NotFoundError();
   }
 
   if (options.isOwner) {
@@ -46,9 +47,9 @@ const validate: Validate = async (entity, ctx, options) => {
 ////////////////////////////////////////////////////////////////////////////////
 // Get All
 ////////////////////////////////////////////////////////////////////////////////
-type GetAll = <T>(Entity: any) => Promise<T[]>;
-export const getAll: GetAll = async (Entity) => {
-  return Entity.find();
+type GetAll = <T>(Entity: any, options?: FindManyOptions<T>) => Promise<T[]>;
+export const getAll: GetAll = async (Entity, options) => {
+  return Entity.find(options);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

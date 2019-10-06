@@ -20,6 +20,7 @@ import { UpdateCategoryInput } from './types/UpdateCategoryInput';
 
 @Resolver(() => Category)
 export class CategoryResolver {
+  /*
   //////////////////////////////////////////////////////////////////////////////
   // Get all Category rows
   //////////////////////////////////////////////////////////////////////////////
@@ -75,4 +76,5 @@ export class CategoryResolver {
   ): Promise<Boolean> {
     return destroy(Category, id, ctx, { isOwner: true });
   }
+  */
 }
