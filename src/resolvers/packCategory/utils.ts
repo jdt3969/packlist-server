@@ -1,7 +1,7 @@
 import { PackCategory } from '@/entities/PackCategory';
 
 export function formatCategoryName(name: string): string {
-  return name;
+  return name.toLowerCase().trim();
 }
 
 // Using query builder until the commented code becomes typeORM feature

@@ -57,6 +57,10 @@ export class PackCategoryResolver {
   ): Promise<PackCategory> {
     const name = formatCategoryName(categoryName);
 
+    if (!name) {
+      throw Error('categoryName cannot be empty');
+    }
+
     const packCategory = await findPackCategory({ packId, name });
     if (packCategory) {
       throw Error('Category already exists in this pack');
@@ -90,13 +94,18 @@ export class PackCategoryResolver {
     const userId = ctx.user.id;
     const name = formatCategoryName(categoryName);
 
+    if (!name) {
+      throw Error('categoryName cannot be empty');
+    }
+
     const packCategory = await PackCategory.findOne(id);
     const category = await Category.findOne(packCategory.categoryId, {
       relations: ['userItems'],
     });
-    const packItems = await PackItem.find({
-      where: { packCategoryId: packCategory.id },
-      relations: ['userItem'],
+
+    await validate(packCategory, ctx, {
+      isOwner: true,
+      getOwnerId: () => category.userId,
     });
 
     console.log('==========================================================');
@@ -104,12 +113,6 @@ export class PackCategoryResolver {
     console.log();
     console.log(packCategory);
     console.log(category);
-    console.log(packItems);
-
-    await validate(packCategory, ctx, {
-      isOwner: true,
-      getOwnerId: () => category.userId,
-    });
 
     const currentPackCategory = await findPackCategory({
       packId: packCategory.packId,
@@ -199,8 +202,11 @@ export class PackCategoryResolver {
 
       // Just add UserItems to next Category if they don't already exist
       console.log("Add UserItems to next Category if they don't already exist");
-      console.log(packItems);
-      console.log(nextCategory.userItems);
+
+      const packItems = await PackItem.find({
+        where: { packCategoryId: packCategory.id },
+        relations: ['userItem'],
+      });
 
       const userItems = await Promise.all(
         packItems.map(async (packItem) => {
@@ -231,6 +237,64 @@ export class PackCategoryResolver {
     @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
-    return await destroy(PackCategory, id, ctx, { isOwner: true });
+    const packCategory = await PackCategory.findOne(id);
+    const category = await Category.findOne(packCategory.categoryId);
+
+    await validate(packCategory, ctx, {
+      isOwner: true,
+      getOwnerId: () => category.userId,
+    });
+
+    const packItems = await PackItem.find({
+      where: { packCategoryId: packCategory.id },
+      relations: ['userItem', 'userItem.packItems'],
+    });
+
+    console.log('==========================================================');
+    console.log('Delete PackCategory');
+    console.log();
+    console.log(packCategory);
+    console.log(category);
+    console.log(packItems);
+
+    const otherPackCategoriesCount = await PackCategory.count({
+      where: {
+        id: Not(packCategory.id),
+        categoryId: packCategory.categoryId,
+      },
+    });
+
+    console.log('Deleting PackCategory', packCategory.id);
+    await packCategory.remove();
+
+    if (!otherPackCategoriesCount) {
+      console.log('Category', packCategory.categoryId, 'is unique, deleting');
+      await category.remove();
+    }
+
+    for (const packItem of packItems) {
+      const userItem = await packItem.userItem;
+      const otherPackItems = await userItem.packItems;
+
+      const userItemUnique = !otherPackItems.find(
+        ({ id }) => packItem.id !== id
+      );
+
+      console.log(
+        'PackItem',
+        packItem.id,
+        `is${userItemUnique ? '' : ' not'} unique`
+      );
+
+      if (userItemUnique) {
+        console.log('Deleting UserItem', userItem.id);
+        await userItem.remove();
+      }
+
+      console.log('Deleting PackItem', packItem.id);
+      await packItem.remove();
+    }
+
+    return true;
   }
 }
