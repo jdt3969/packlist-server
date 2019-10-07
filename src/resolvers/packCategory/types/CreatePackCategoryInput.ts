@@ -1,8 +1,8 @@
-import { InputType, Field } from 'type-graphql';
+import { InputType, Field, ID } from 'type-graphql';
 
 @InputType()
 export class CreatePackCategoryInput {
-  @Field()
+  @Field(() => ID)
   packId: number;
 
   @Field()
