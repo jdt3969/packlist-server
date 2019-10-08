@@ -36,7 +36,7 @@ export class PackResolver {
     @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Pack> {
-    return getOne<Pack>(Pack, id, ctx, { isOwner: true });
+    return getOne<Pack>(Pack, id, ctx);
   }
 
   //////////////////////////////////////////////////////////////////////////////
