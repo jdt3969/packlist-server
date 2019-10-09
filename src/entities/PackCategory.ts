@@ -13,6 +13,7 @@ import { Category } from './Category';
 import { PackItem } from './PackItem';
 
 import { Lazy } from '@/types/Lazy';
+import { User } from './User';
 
 @ObjectType()
 @Entity()
@@ -25,6 +26,11 @@ export class PackCategory extends BaseEntity {
   pack: Pack;
   @Column()
   packId: number;
+
+  @ManyToOne(() => User)
+  user: User;
+  @Column()
+  userId: number;
 
   @Field(() => Category)
   @ManyToOne(() => Category, (category: Category) => category.packCategories, {

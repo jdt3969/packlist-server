@@ -11,7 +11,7 @@ export class CreatePackItemInput implements Partial<PackItem> {
   quantity?: number;
 
   @Field(() => ID)
-  userItemId: number;
+  itemId: number;
 
   @Field(() => ID)
   packCategoryId: number;

@@ -13,10 +13,12 @@ import { Item } from '@/entities/Item';
 import { Auth } from '@/middleware/Auth';
 
 import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+import { ILike } from '@/utils/typeorm';
 
 import { Context } from '@/types/Context';
 import { CreateItemInput } from './types/CreateItemInput';
 import { UpdateItemInput } from './types/UpdateItemInput';
+import { FindItemsInput } from './types/FindItemsInput';
 
 @Resolver(() => Item)
 export class ItemResolver {
@@ -24,8 +26,11 @@ export class ItemResolver {
   // Get all Item rows
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Item])
-  async items(): Promise<Item[]> {
-    return getAll<Item>(Item);
+  async items(@Arg('input') { search }: FindItemsInput): Promise<Item[]> {
+    return getAll<Item>(
+      Item,
+      search ? { where: { name: ILike(`%${search}%`) } } : {}
+    );
   }
 
   //////////////////////////////////////////////////////////////////////////////

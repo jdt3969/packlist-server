@@ -25,23 +25,23 @@ export class UserItem extends BaseEntity {
   id: number;
 
   @Field()
-  @Column()
-  isOwned: boolean;
+  @Column({ default: true })
+  isOwned?: boolean;
 
   @ManyToOne(() => User, (user: User) => user.userItems)
   user: User;
   @Column()
   userId: number;
 
-  @ManyToMany(() => Category, (category: Category) => category.userItems)
-  @JoinTable()
-  categories: Category[];
-
   @Field(() => Item)
   @ManyToOne(() => Item, (item: Item) => item.userItems, { lazy: true })
   item: Lazy<Item>;
   @Column()
   itemId: number;
+
+  @ManyToMany(() => Category, (category: Category) => category.userItems)
+  @JoinTable()
+  categories: Category[];
 
   @OneToMany(() => PackItem, (packItem: PackItem) => packItem.userItem)
   packItems: PackItem[];

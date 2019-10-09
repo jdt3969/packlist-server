@@ -5,6 +5,7 @@ import {
   ManyToOne,
   BaseEntity,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { ObjectType, Field, ID, Int } from 'type-graphql';
 
@@ -23,6 +24,7 @@ export class Item extends BaseEntity {
   id: number;
 
   @Field()
+  @Index()
   @Column()
   name: string;
 

@@ -21,12 +21,12 @@ export class PackItem extends BaseEntity {
   id: number;
 
   @Field()
-  @Column()
-  isWorn: boolean;
+  @Column({ default: false })
+  isWorn?: boolean;
 
   @Field(() => Int)
   @Column('int', { default: 1 })
-  quantity: number;
+  quantity?: number;
 
   @Field(() => UserItem)
   @ManyToOne(() => UserItem, (userItem: UserItem) => userItem.packItems, {

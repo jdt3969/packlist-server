@@ -264,14 +264,6 @@ export class PackCategoryResolver {
       },
     });
 
-    console.log('Deleting PackCategory', packCategory.id);
-    await packCategory.remove();
-
-    if (!otherPackCategoriesCount) {
-      console.log('Category', packCategory.categoryId, 'is unique, deleting');
-      await category.remove();
-    }
-
     for (const packItem of packItems) {
       const userItem = await packItem.userItem;
       const otherPackItems = await userItem.packItems;
@@ -286,13 +278,21 @@ export class PackCategoryResolver {
         `is${userItemUnique ? '' : ' not'} unique`
       );
 
+      console.log('Deleting PackItem', packItem.id);
+      await packItem.remove();
+
       if (userItemUnique) {
         console.log('Deleting UserItem', userItem.id);
         await userItem.remove();
       }
+    }
 
-      console.log('Deleting PackItem', packItem.id);
-      await packItem.remove();
+    console.log('Deleting PackCategory', packCategory.id);
+    await packCategory.remove();
+
+    if (!otherPackCategoriesCount) {
+      console.log('Category', packCategory.categoryId, 'is unique, deleting');
+      await category.remove();
     }
 
     return true;

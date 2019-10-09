@@ -1,4 +1,4 @@
-import { InputType, Field, ID, Int } from 'type-graphql';
+import { InputType, Field, Int } from 'type-graphql';
 
 import { PackItem } from '@/entities/PackItem';
 
@@ -9,7 +9,4 @@ export class UpdatePackItemInput implements Partial<PackItem> {
 
   @Field(() => Int, { nullable: true })
   quantity?: number;
-
-  @Field(() => ID, { nullable: true })
-  packCategoryId?: number;
 }
