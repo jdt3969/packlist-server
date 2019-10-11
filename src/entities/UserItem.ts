@@ -8,7 +8,7 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Int } from 'type-graphql';
 
 import { User } from './User';
 import { Item } from './Item';
@@ -27,6 +27,14 @@ export class UserItem extends BaseEntity {
   @Field()
   @Column({ default: true })
   isOwned?: boolean;
+
+  @Field(() => Int, { nullable: true })
+  @Column('int', { nullable: true })
+  price: number;
+
+  @Field({ nullable: true })
+  @Column('decimal', { nullable: true })
+  weight: number;
 
   @ManyToOne(() => User, (user: User) => user.userItems)
   user: User;
