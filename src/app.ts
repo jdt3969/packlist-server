@@ -23,6 +23,13 @@ const main = async () => {
 
   const app = express();
 
+  app.use('/ping', (_, res) => {
+    res.json({
+      started: new Date(Date.now() - 1000 * Math.floor(process.uptime())),
+      uptime: process.uptime() * 1.0,
+    });
+  });
+
   app.use(handler);
 
   apolloServer.applyMiddleware({ app, path });

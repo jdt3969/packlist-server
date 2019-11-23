@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "api.fullname" . }}
+  labels:
+{{ include "api.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "api.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "api.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-db-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudsql-db-credentials
+                  key: password
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: json-web-token-pem
+                  key: jwtRS256.key
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: json-web-token-pem
+                  key: jwtRS256.key.pub
+          ports:
+            - name: http
+              containerPort: {{ .Values.port }}
+              protocol: TCP
+          livenessProbe:	
+            httpGet:	
+              path: /ping	
+              port: {{ .Values.port }}	
+              scheme: HTTP	
+            initialDelaySeconds: 15	
+            timeoutSeconds: 3	
+            periodSeconds: 5	
+          readinessProbe:	
+            httpGet:	
+              path: /ping	
+              port: {{ .Values.port }}	
+              scheme: HTTP	
+            initialDelaySeconds: 15	
+            timeoutSeconds: 3	
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.14
+          command:
+            - /cloud_sql_proxy
+            - -instances={{ .Values.dbInstance }}=tcp:5432
+            - -credential_file=/secrets/cloudsql/credentials.json
+            - -term_timeout=30s
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+          resources:
+            {{- toYaml .Values.proxyResources | nindent 12 }}
+      volumes:
+        - name: cloudsql-db-credentials
+          secret:
+            secretName: cloudsql-db-credentials
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+        - name: json-web-token-pem
+          secret:
+            secretName: json-web-token-pem

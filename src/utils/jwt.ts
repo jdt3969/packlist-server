@@ -10,8 +10,10 @@ declare module 'express' {
   }
 }
 
-const jwtPrivateKey = fs.readFileSync('jwtRS256.key', 'utf8');
-const jwtPublicKey = fs.readFileSync('jwtRS256.key.pub', 'utf8');
+const jwtPrivateKey =
+  process.env.JWT_PRIVATE_KEY || fs.readFileSync('jwtRS256.key', 'utf8');
+const jwtPublicKey =
+  process.env.JWT_PUBLIC_KEY || fs.readFileSync('jwtRS256.key.pub', 'utf8');
 
 export const sign = (user: User) => {
   return jwt.sign({ user }, jwtPrivateKey, {

@@ -41,7 +41,7 @@ export const validate: Validate = async (entity, ctx, options) => {
   }
 
   if (options.isOwner) {
-    await validateOwner(entity, (ctx.user || {}).id, options);
+    await validateOwner(entity, ctx.user ? ctx.user.id : undefined, options);
   }
 };
 ////////////////////////////////////////////////////////////////////////////////

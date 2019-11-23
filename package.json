@@ -8,7 +8,7 @@
     "start": "if-env NODE_ENV=production && yarn start:prod || yarn start:dev",
     "start:dev": "yarn watch",
     "start:prod": "yarn build && yarn serve",
-    "build": "yarn build-ts && yarn tslint",
+    "build": "yarn build-ts",
     "serve": "node dist/index.js",
     "watch-node": "nodemon dist/index.js",
     "build-ts": "tsc",

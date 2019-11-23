@@ -1,0 +1,237 @@
+version: 2.1
+
+executors:
+  gcloud-helm:
+    description: Docker container with latest gcloud sdk.
+    docker:
+      - image: google/cloud-sdk:latest
+  node:
+    description: Setup docker environment with CircleCI's node:10.16.0.
+    docker:
+      - image: circleci/node:10.16.0
+
+commands:
+  gcp-auth:
+    description: Configure Docker to use gcloud as a credential helper.
+    parameters:
+      gcloud-service-key:
+        description: The gcloud service key in base64 format
+        type: env_var_name
+        default: GCLOUD_SERVICE_KEY
+      google-project-id:
+        description: Environment variable name for the Google project ID to connect with via the gcloud CLI
+        type: env_var_name
+        default: GOOGLE_PROJECT_ID
+      google-compute-zone:
+        description: The Google compute zone to connect with via the gcloud CLI
+        type: env_var_name
+        default: GOOGLE_COMPUTE_ZONE
+      gke-cluster:
+        description: The Google Container Engine Cluster to deploy to.
+        type: string
+    steps:
+      - run:
+          name: Configure Docker for Container Registry
+          command: |
+            echo $<<parameters.gcloud-service-key>> | base64 -d > ${HOME}/gcloud-service-key.json
+            gcloud --quiet auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+            gcloud --quiet config set project $<<parameters.google-project-id>>
+            gcloud --quiet config set compute/zone $<<parameters.google-compute-zone>>
+            gcloud --quiet auth configure-docker  --project $<<parameters.google-project-id>>
+            gcloud --quiet container clusters get-credentials <<parameters.gke-cluster>> --zone $<<parameters.google-compute-zone>> --project $<<parameters.google-project-id>>
+
+  build-image:
+    description: Build a docker image
+    parameters:
+      registry-url:
+        description: The GCR registry URL from ['', us, eu, asia].gcr.io
+        type: string
+        default: gcr.io
+      google-project-id:
+        description: The Google project ID to connect with via the gcloud CLI
+        type: env_var_name
+        default: GOOGLE_PROJECT_ID
+      image:
+        description: A name for your docker image
+        type: string
+      tag:
+        description: A docker image tag
+        type: string
+        default: 'latest'
+      path-to-dockerfile:
+        description: The relative path to the Dockerfile to use when building image
+        type: string
+        default: '.'
+    steps:
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build -t <<parameters.registry-url>>/$<<parameters.google-project-id>>/<<parameters.image>>:<<parameters.tag>> <<parameters.path-to-dockerfile>>
+
+  push-image:
+    description: Push a container image to the GCR registry
+    parameters:
+      registry-url:
+        description: The GCR registry URL from ['', us, eu, asia].gcr.io
+        type: string
+        default: gcr.io
+      google-project-id:
+        description: The Google project ID to connect with via the gcloud CLI
+        type: env_var_name
+        default: GOOGLE_PROJECT_ID
+      image:
+        description: A name for your docker image
+        type: string
+      tag:
+        description: A docker image tag
+        type: string
+        default: 'latest'
+    steps:
+      - run:
+          name: Push image to GCR
+          command: |
+            docker push <<parameters.registry-url>>/$<<parameters.google-project-id>>/<<parameters.image>>:<<parameters.tag>>
+
+  helm-install:
+    description: Install helm
+    steps:
+      - run:
+          name: Install helm
+          command: |
+            curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+  helm-upgrade:
+    description: Performs a helm upgrade
+    parameters:
+      registry-url:
+        description: The GCR registry URL from ['', us, eu, asia].gcr.io
+        type: string
+        default: gcr.io
+      google-project-id:
+        description: The Google project ID to connect with via the gcloud CLI
+        type: env_var_name
+        default: GOOGLE_PROJECT_ID
+      image:
+        description: A name for your docker image
+        type: string
+      tag:
+        description: A docker image tag
+        type: string
+        default: 'latest'
+      namespace:
+        description: The namespace to deploy application
+        type: string
+      environment:
+        description: The environment to deploy application
+        type: string
+      hostname-suffix:
+        description: The kubernetes hostname service suffix to deploy.
+        type: string
+    steps:
+      - run:
+          name: Update K8s resources to use new image
+          command: |
+            helm upgrade <<parameters.image>> ./deployment/<<parameters.image>> \
+              -i \
+              -f ./deployment/<<parameters.image>>/values.yaml \
+              --namespace <<parameters.namespace>> \
+              --set image.tag=<<parameters.tag>>,image.repository=<<parameters.registry-url>>/$<<parameters.google-project-id>>/<<parameters.image>>,ingress.hostName=<<parameters.image>>-<<parameters.environment>>.<<parameters.hostname-suffix>>
+jobs:
+  deployment:
+    description: >
+      Use gcloud latest sdk container image, and configure. Deploy service to kubernetes cluster.
+      Requires environment variable for GCLOUD_SERVICE_KEY, GOOGLE_PROJECT_ID, GOOGLE_COMPUTE_ZONE set either through context or by passing as params.
+    executor: gcloud-helm
+    parameters:
+      remote-docker-version:
+        description: The circleci remote docker version to use
+        type: string
+        default: 18.09.3
+      gcloud-service-key:
+        description: The gcloud service key in base64 format
+        type: env_var_name
+        default: GCLOUD_SERVICE_KEY
+      google-project-id:
+        description: The Google project ID to connect with via the gcloud CLI
+        type: env_var_name
+        default: GOOGLE_PROJECT_ID
+      google-compute-zone:
+        description: The Google compute zone to connect with via the gcloud CLI
+        type: env_var_name
+        default: GOOGLE_COMPUTE_ZONE
+      gke-cluster:
+        description: The Google Container Engine Cluster to deploy to.
+        type: string
+      registry-url:
+        description: The GCR registry URL from ['', us, eu, asia].gcr.io
+        type: string
+        default: gcr.io
+      image:
+        description: A name for your docker image (eg example-svc)
+        type: string
+      tag:
+        description: A docker image tag
+        type: string
+        default: 'latest'
+      namespace:
+        description: The namespace to deploy application
+        type: string
+      environment:
+        description: The environment to deploy application
+        type: string
+      hostname-suffix:
+        description: The kubernetes hostname service suffix to deploy.
+        type: string
+      path-to-dockerfile:
+        description: The relative path to the Dockerfile to use when building image
+        type: string
+        default: '.'
+
+    steps:
+      - checkout
+      - helm-install
+      - setup_remote_docker:
+          version: <<parameters.remote-docker-version>>
+          docker_layer_caching: true
+      - gcp-auth:
+          gcloud-service-key: <<parameters.gcloud-service-key>>
+          google-project-id: <<parameters.google-project-id>>
+          google-compute-zone: <<parameters.google-compute-zone>>
+          gke-cluster: <<parameters.gke-cluster>>
+      - build-image:
+          registry-url: <<parameters.registry-url>>
+          google-project-id: <<parameters.google-project-id>>
+          image: <<parameters.image>>
+          tag: <<parameters.tag>>
+          path-to-dockerfile: <<parameters.path-to-dockerfile>>
+      - push-image:
+          registry-url: <<parameters.registry-url>>
+          google-project-id: <<parameters.google-project-id>>
+          image: <<parameters.image>>
+          tag: <<parameters.tag>>
+      - helm-upgrade:
+          registry-url: <<parameters.registry-url>>
+          google-project-id: <<parameters.google-project-id>>
+          image: <<parameters.image>>
+          tag: <<parameters.tag>>
+          namespace: <<parameters.namespace>>
+          environment: <<parameters.environment>>
+          hostname-suffix: <<parameters.hostname-suffix>>
+
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - deployment:
+          name: deploy-api
+          context: packlist # circleci context
+          gke-cluster: packlist
+          image: api
+          tag: $CIRCLE_SHA1
+          namespace: packlist-dev
+          environment: dev
+          hostname-suffix: packlist.io
+          path-to-dockerfile: '-f ./Dockerfile .'
+          filters:
+            branches:
+              only: master
