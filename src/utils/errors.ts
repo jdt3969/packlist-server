@@ -1,11 +1,15 @@
-export function NotFoundError() {
-  return new Error('Not Found');
+function genError(title: string, description?: string) {
+  return new Error(title + (description ? ': ' + description : ''));
 }
 
-export function NotAuthorizedError() {
-  return new Error('You do not have access');
+export function NotFoundError(msg?: string) {
+  return genError('Not Found', msg);
 }
 
-export function InvalidCredentialsError() {
-  return new Error('Email or password was incorrect');
+export function NotAuthorizedError(msg?: string) {
+  return genError('You do not have access', msg);
+}
+
+export function InvalidCredentialsError(msg?: string) {
+  return genError('Email or password was incorrect', msg);
 }

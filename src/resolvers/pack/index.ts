@@ -13,6 +13,7 @@ import { Pack } from '@/entities/Pack';
 import { Auth } from '@/middleware/Auth';
 
 import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+import { NotFoundError } from '@/utils/errors';
 
 import { Context } from '@/types/Context';
 import { CreatePackInput } from './types/CreatePackInput';
@@ -21,11 +22,20 @@ import { UpdatePackInput } from './types/UpdatePackInput';
 @Resolver(() => Pack)
 export class PackResolver {
   //////////////////////////////////////////////////////////////////////////////
-  // Get all Pack rows
+  // Get all Packs
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Pack])
-  async packs(): Promise<Pack[]> {
-    return getAll<Pack>(Pack);
+  async packs(
+    @Arg('userId', () => ID, { nullable: true }) userId: number,
+    @Ctx() ctx: Context
+  ): Promise<Pack[]> {
+    userId = userId || (ctx.user ? ctx.user.id : null);
+
+    if (!userId) {
+      throw NotFoundError('No user provided');
+    }
+
+    return getAll<Pack>(Pack, { where: { userId } });
   }
 
   //////////////////////////////////////////////////////////////////////////////
