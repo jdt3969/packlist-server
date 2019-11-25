@@ -6,11 +6,14 @@ import { createConnection } from 'typeorm';
 import { handler } from '@/utils/jwt';
 
 import resolvers from '@/resolvers';
+import { registerEnums } from '@/enums';
 
 const path = '/graphql';
 
 const main = async () => {
   await createConnection();
+
+  registerEnums();
 
   const schema = await buildSchema({
     resolvers,

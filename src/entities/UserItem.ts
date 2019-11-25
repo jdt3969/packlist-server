@@ -15,6 +15,8 @@ import { Item } from './Item';
 import { Category } from './Category';
 import { PackItem } from './PackItem';
 
+import { UnitOfMeasure } from '@/enums/UnitOfMeasure';
+
 import { Lazy } from '@/types/Lazy';
 
 @ObjectType()
@@ -36,21 +38,42 @@ export class UserItem extends BaseEntity {
   @Column('decimal', { nullable: true })
   weight: number;
 
-  @ManyToOne(() => User, (user: User) => user.userItems)
+  @Field(() => UnitOfMeasure)
+  @Column({
+    type: 'enum',
+    enum: UnitOfMeasure,
+    default: UnitOfMeasure.GRAM,
+  })
+  unitOfMeasure: UnitOfMeasure;
+
+  @ManyToOne(
+    () => User,
+    (user: User) => user.userItems
+  )
   user: User;
   @Column()
   userId: number;
 
   @Field(() => Item)
-  @ManyToOne(() => Item, (item: Item) => item.userItems, { lazy: true })
+  @ManyToOne(
+    () => Item,
+    (item: Item) => item.userItems,
+    { lazy: true }
+  )
   item: Lazy<Item>;
   @Column()
   itemId: number;
 
-  @ManyToMany(() => Category, (category: Category) => category.userItems)
+  @ManyToMany(
+    () => Category,
+    (category: Category) => category.userItems
+  )
   @JoinTable()
   categories: Category[];
 
-  @OneToMany(() => PackItem, (packItem: PackItem) => packItem.userItem)
+  @OneToMany(
+    () => PackItem,
+    (packItem: PackItem) => packItem.userItem
+  )
   packItems: PackItem[];
 }

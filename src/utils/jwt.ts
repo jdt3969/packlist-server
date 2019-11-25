@@ -4,7 +4,7 @@ import { Handler, Request } from 'express';
 
 import { User } from '@/entities/User';
 
-declare module 'express' {
+declare module 'express-serve-static-core' {
   interface Request {
     user: User;
   }
@@ -34,7 +34,7 @@ export const verify = (token: string): { user: User } => {
   }
 };
 
-export const handler: Handler = async (req: Request, res, next) => {
+export const handler: Handler = async (req: Request, _, next) => {
   const token = req.get('authorization');
 
   const data = verify(token);

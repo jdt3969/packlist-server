@@ -1,6 +1,7 @@
 import { InputType, Field, ID, Int } from 'type-graphql';
 
 import { Item } from '@/entities/Item';
+import { UnitOfMeasure } from '@/enums/UnitOfMeasure';
 
 @InputType()
 export class CreateItemInput implements Partial<Item> {
@@ -19,6 +20,6 @@ export class CreateItemInput implements Partial<Item> {
   @Field(() => ID)
   companyId: number;
 
-  @Field(() => ID)
-  unitOfMeasureId: number;
+  @Field(() => UnitOfMeasure)
+  unitOfMeasure: UnitOfMeasure;
 }

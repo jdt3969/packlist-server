@@ -10,9 +10,10 @@ import {
 import { ObjectType, Field, ID, Int } from 'type-graphql';
 
 import { Company } from './Company';
-import { UnitOfMeasure } from './UnitOfMeasure';
 import { UserItem } from './UserItem';
 import { ShoppingLink } from './ShoppingLink';
+
+import { UnitOfMeasure } from '@/enums/UnitOfMeasure';
 
 import { Lazy } from '@/types/Lazy';
 
@@ -36,27 +37,32 @@ export class Item extends BaseEntity {
   @Column('decimal')
   weight: number;
 
+  @Field(() => UnitOfMeasure)
+  @Column({
+    type: 'enum',
+    enum: UnitOfMeasure,
+    default: UnitOfMeasure.GRAM,
+  })
+  unitOfMeasure: UnitOfMeasure;
+
   @Field()
   @Column()
   imageUrl: string;
 
   @Field(() => Company)
-  @ManyToOne(() => Company, (company: Company) => company.items, { lazy: true })
+  @ManyToOne(
+    () => Company,
+    (company: Company) => company.items,
+    { lazy: true }
+  )
   company: Lazy<Company>;
   @Column()
   companyId: number;
 
-  @Field(() => UnitOfMeasure)
-  @ManyToOne(
-    () => UnitOfMeasure,
-    (unitOfMeasure: UnitOfMeasure) => unitOfMeasure.items,
-    { lazy: true }
+  @OneToMany(
+    () => UserItem,
+    (userItem: UserItem) => userItem.item
   )
-  unitOfMeasure: Lazy<UnitOfMeasure>;
-  @Column()
-  unitOfMeasureId: number;
-
-  @OneToMany(() => UserItem, (userItem: UserItem) => userItem.item)
   userItems: UserItem[];
 
   @Field(() => [ShoppingLink])
