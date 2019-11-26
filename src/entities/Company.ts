@@ -4,10 +4,14 @@ import {
   Column,
   BaseEntity,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { ObjectType, Field, ID } from 'type-graphql';
 
 import { Item } from './Item';
+import { User } from './User';
+
+import { Lazy } from 'Lazy';
 
 @ObjectType()
 @Entity()
@@ -21,13 +25,28 @@ export class Company extends BaseEntity {
   name: string;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   url: string;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   imageUrl: string;
 
-  @OneToMany(() => Item, (item: Item) => item.company)
+  @Column({ default: false })
+  isSystem: boolean;
+
+  @ManyToOne(
+    () => User,
+    (user: User) => user.items,
+    { lazy: true }
+  )
+  user: Lazy<User>;
+  @Column()
+  userId: number;
+
+  @OneToMany(
+    () => Item,
+    (item: Item) => item.company
+  )
   items: Item[];
 }

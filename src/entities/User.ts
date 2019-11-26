@@ -11,6 +11,7 @@ import { Category } from './Category';
 import { UserItem } from './UserItem';
 import { Pack } from './Pack';
 import { PackItem } from './PackItem';
+import { Item } from './Item';
 
 import { Lazy } from '@/types/Lazy';
 
@@ -41,15 +42,34 @@ export class User extends BaseEntity {
   email: string;
 
   @Field(() => [Pack])
-  @OneToMany(() => Pack, (pack: Pack) => pack.user, { lazy: true })
+  @OneToMany(
+    () => Pack,
+    (pack: Pack) => pack.user,
+    { lazy: true }
+  )
   packs: Lazy<Pack[]>;
 
-  @OneToMany(() => Category, (category: Category) => category.user)
+  @OneToMany(
+    () => Category,
+    (category: Category) => category.user
+  )
   categories: Category[];
 
-  @OneToMany(() => UserItem, (userItem: UserItem) => userItem.user)
+  @OneToMany(
+    () => Item,
+    (item: Item) => item.user
+  )
+  items: Item[];
+
+  @OneToMany(
+    () => UserItem,
+    (userItem: UserItem) => userItem.user
+  )
   userItems: UserItem[];
 
-  @OneToMany(() => PackItem, (packItem: PackItem) => packItem.user)
+  @OneToMany(
+    () => PackItem,
+    (packItem: PackItem) => packItem.user
+  )
   packItems: PackItem[];
 }

@@ -7,6 +7,6 @@ module.exports = {
   username: process.env.DATABASE_USER || 'postgres',
   password: process.env.DATABASE_PASSWORD || 'postgres',
   synchronize: true,
-  logging: ['error'],
+  logging: ['error'], // ['query', 'error'],
   entities: ['dist/entities/*.js'],
 };

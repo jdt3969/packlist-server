@@ -12,6 +12,7 @@ import { ObjectType, Field, ID, Int } from 'type-graphql';
 import { Company } from './Company';
 import { UserItem } from './UserItem';
 import { ShoppingLink } from './ShoppingLink';
+import { User } from './User';
 
 import { UnitOfMeasure } from '@/enums/UnitOfMeasure';
 
@@ -30,11 +31,11 @@ export class Item extends BaseEntity {
   name: string;
 
   @Field(() => Int)
-  @Column('int')
+  @Column('int', { default: 0 })
   price: number;
 
   @Field()
-  @Column('decimal')
+  @Column('decimal', { default: 0 })
   weight: number;
 
   @Field(() => UnitOfMeasure)
@@ -46,8 +47,11 @@ export class Item extends BaseEntity {
   unitOfMeasure: UnitOfMeasure;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   imageUrl: string;
+
+  @Column({ default: false })
+  isSystem: boolean;
 
   @Field(() => Company)
   @ManyToOne(
@@ -58,6 +62,15 @@ export class Item extends BaseEntity {
   company: Lazy<Company>;
   @Column()
   companyId: number;
+
+  @ManyToOne(
+    () => User,
+    (user: User) => user.items,
+    { lazy: true }
+  )
+  user: Lazy<User>;
+  @Column()
+  userId: number;
 
   @OneToMany(
     () => UserItem,

@@ -1,3 +1,4 @@
+import { Brackets } from 'typeorm';
 import {
   Resolver,
   ID,
@@ -12,8 +13,7 @@ import { Item } from '@/entities/Item';
 
 import { Auth } from '@/middleware/Auth';
 
-import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
-import { ILike } from '@/utils/typeorm';
+import { getOne, create, update, destroy } from '@/utils/resolvers';
 
 import { Context } from '@/types/Context';
 import { CreateItemInput } from './types/CreateItemInput';
@@ -25,12 +25,28 @@ export class ItemResolver {
   //////////////////////////////////////////////////////////////////////////////
   // Get all Item rows
   //////////////////////////////////////////////////////////////////////////////
+  @UseMiddleware(Auth())
   @Query(() => [Item])
-  async items(@Arg('input') { search }: FindItemsInput): Promise<Item[]> {
-    return getAll<Item>(
-      Item,
-      search ? { where: { name: ILike(`%${search}%`) } } : {}
-    );
+  async items(
+    @Arg('input') { search }: FindItemsInput,
+    @Ctx() ctx: Context
+  ): Promise<Item[]> {
+    const qb = Item.createQueryBuilder('item')
+      // Is an item the current user made or a system item
+      .where(
+        new Brackets((qb) => {
+          qb.where('item.userId = :userId', { userId: ctx.user.id }).orWhere(
+            'item.isSystem = TRUE'
+          );
+        })
+      );
+
+    // Filter by ILIKE
+    if (search) {
+      qb.andWhere('item.name ILIKE :search', { search: `%${search}%` });
+    }
+
+    return qb.getMany();
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -53,7 +69,7 @@ export class ItemResolver {
     @Arg('input') input: CreateItemInput,
     @Ctx() ctx: Context
   ): Promise<Item> {
-    return create<Item>(Item, input, ctx);
+    return create<Item>(Item, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -66,7 +82,7 @@ export class ItemResolver {
     @Arg('input') input: UpdateItemInput,
     @Ctx() ctx: Context
   ): Promise<Item> {
-    return update<Item>(Item, id, input, ctx);
+    return update<Item>(Item, id, input, ctx, { isOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -78,6 +94,6 @@ export class ItemResolver {
     @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
-    return destroy(Item, id, ctx);
+    return destroy(Item, id, ctx, { isOwner: true });
   }
 }

@@ -8,18 +8,18 @@ export class CreateItemInput implements Partial<Item> {
   @Field()
   name: string;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   price: number;
 
-  @Field()
+  @Field({ nullable: true })
   weight: number;
 
-  @Field()
+  @Field({ nullable: true })
   imageUrl: string;
 
   @Field(() => ID)
   companyId: number;
 
-  @Field(() => UnitOfMeasure)
+  @Field(() => UnitOfMeasure, { nullable: true })
   unitOfMeasure: UnitOfMeasure;
 }

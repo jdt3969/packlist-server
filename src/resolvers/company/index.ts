@@ -12,11 +12,13 @@ import { Company } from '@/entities/Company';
 
 import { Auth } from '@/middleware/Auth';
 
-import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+import { getOne, create, update, destroy } from '@/utils/resolvers';
 
 import { Context } from '@/types/Context';
 import { CreateCompanyInput } from './types/CreateCompanyInput';
 import { UpdateCompanyInput } from './types/UpdateCompanyInput';
+import { FindCompaniesInput } from './types/FindCompaniesInput';
+import { Brackets } from 'typeorm';
 
 @Resolver(() => Company)
 export class CompanyResolver {
@@ -24,8 +26,26 @@ export class CompanyResolver {
   // Get all Company rows
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Company])
-  async companies(): Promise<Company[]> {
-    return getAll<Company>(Company);
+  async companies(
+    @Arg('input') { search }: FindCompaniesInput,
+    @Ctx() ctx: Context
+  ): Promise<Company[]> {
+    const qb = Company.createQueryBuilder('company')
+      // Is company the current user made or a system company
+      .where(
+        new Brackets((qb) => {
+          qb.where('company.userId = :userId', { userId: ctx.user.id }).orWhere(
+            'company.isSystem = TRUE'
+          );
+        })
+      );
+
+    // Filter by ILIKE
+    if (search) {
+      qb.andWhere('company.name ILIKE :search', { search: `%${search}%` });
+    }
+
+    return qb.getMany();
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -36,7 +56,7 @@ export class CompanyResolver {
     @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Company> {
-    return getOne<Company>(Company, id, ctx, { isOwner: true });
+    return getOne<Company>(Company, id, ctx);
   }
 
   //////////////////////////////////////////////////////////////////////////////
