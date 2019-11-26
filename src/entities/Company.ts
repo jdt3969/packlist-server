@@ -24,11 +24,11 @@ export class Company extends BaseEntity {
   @Column()
   name: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   url: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   imageUrl: string;
 

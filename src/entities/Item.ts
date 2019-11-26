@@ -46,7 +46,7 @@ export class Item extends BaseEntity {
   })
   unitOfMeasure: UnitOfMeasure;
 
-  @Field()
+  @Field({ nullable: true })
   @Column({ nullable: true })
   imageUrl: string;
 
