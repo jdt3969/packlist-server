@@ -50,36 +50,28 @@ export class PackItemResolver {
   @UseMiddleware(Auth())
   @Mutation(() => PackItem)
   async createPackItem(
-    @Arg('input') { itemId, packCategoryId, ...rest }: CreatePackItemInput,
+    @Arg('input')
+    { itemId, itemInput, packCategoryId, ...rest }: CreatePackItemInput,
     @Ctx() ctx: Context
   ): Promise<PackItem> {
     const userId = ctx.user.id;
 
     const packCategory = await PackCategory.findOne(packCategoryId, {
+      where: { userId },
       relations: ['category'],
     });
-    const item = await Item.findOne(itemId);
-
-    if (!item || !packCategory || packCategory.userId !== userId) {
-      throw NotFoundError();
+    if (!packCategory) {
+      throw NotFoundError(`PackCategory ${packCategoryId}`);
     }
 
-    let userItem = await UserItem.findOne(
-      { itemId, userId },
-      { relations: ['categories'] }
-    );
     const category = await packCategory.category;
-    if (!userItem) {
-      userItem = await create<UserItem>(UserItem, { itemId }, ctx, {
-        addOwner: true,
-      });
-      userItem.categories = [category];
-      await userItem.save();
-    } else {
-      const categories = await userItem.categories;
-      userItem.categories = uniqBy([...categories, category], 'id');
-      await userItem.save();
-    }
+
+    const userItem = await UserItem.upsertWithCategory({
+      userId,
+      itemId,
+      itemInput,
+      category,
+    });
 
     const input = { userItemId: userItem.id, packCategoryId, ...rest };
 

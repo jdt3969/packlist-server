@@ -7,6 +7,7 @@ import {
   UseMiddleware,
   Ctx,
 } from 'type-graphql';
+import { Brackets } from 'typeorm';
 
 import { Company } from '@/entities/Company';
 
@@ -18,7 +19,6 @@ import { Context } from '@/types/Context';
 import { CreateCompanyInput } from './types/CreateCompanyInput';
 import { UpdateCompanyInput } from './types/UpdateCompanyInput';
 import { FindCompaniesInput } from './types/FindCompaniesInput';
-import { Brackets } from 'typeorm';
 
 @Resolver(() => Company)
 export class CompanyResolver {

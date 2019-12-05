@@ -17,7 +17,7 @@ import { getOne, create, update, destroy } from '@/utils/resolvers';
 
 import { Context } from '@/types/Context';
 import { CreateItemInput } from './types/CreateItemInput';
-import { UpdateItemInput } from './types/UpdateItemInput';
+//import { UpdateItemInput } from './types/UpdateItemInput';
 import { FindItemsInput } from './types/FindItemsInput';
 
 @Resolver(() => Item)
@@ -72,6 +72,7 @@ export class ItemResolver {
     return create<Item>(Item, input, ctx, { addOwner: true });
   }
 
+  /*
   //////////////////////////////////////////////////////////////////////////////
   // Update Item
   //////////////////////////////////////////////////////////////////////////////
@@ -96,4 +97,5 @@ export class ItemResolver {
   ): Promise<Boolean> {
     return destroy(Item, id, ctx, { isOwner: true });
   }
+  */
 }
