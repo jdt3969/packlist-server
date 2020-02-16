@@ -34,9 +34,9 @@ export class CompanyResolver {
       // Is company the current user made or a system company
       .where(
         new Brackets((qb) => {
-          qb.where('company.userId = :userId', { userId: ctx.user.id }).orWhere(
-            'company.isSystem = TRUE'
-          );
+          qb.where('company.userId = :userId', {
+            userId: (ctx.user || {}).id,
+          }).orWhere('company.isSystem = TRUE');
         })
       );
 
