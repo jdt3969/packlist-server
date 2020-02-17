@@ -7,21 +7,22 @@ import {
   UseMiddleware,
   Ctx,
 } from 'type-graphql';
-import { uniqBy } from 'lodash';
 
 import { PackItem } from '@/entities/PackItem';
 import { PackCategory } from '@/entities/PackCategory';
-import { Item } from '@/entities/Item';
 import { UserItem } from '@/entities/UserItem';
+import { Pack } from '@/entities/Pack';
 
 import { Auth } from '@/middleware/Auth';
 
 import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
 import { NotFoundError } from '@/utils/errors';
+import { requireIsOwner } from '@/utils/requirements';
 
 import { Context } from '@/types/Context';
 import { CreatePackItemInput } from './types/CreatePackItemInput';
 import { UpdatePackItemInput } from './types/UpdatePackItemInput';
+import { ClonePackItemInput } from './types/ClonePackItemInput';
 
 @Resolver(() => PackItem)
 export class PackItemResolver {
@@ -89,6 +90,57 @@ export class PackItemResolver {
     @Ctx() ctx: Context
   ): Promise<PackItem> {
     return update<PackItem>(PackItem, id, input, ctx, { isOwner: true });
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Clone PackItem
+  //////////////////////////////////////////////////////////////////////////////
+  @UseMiddleware(Auth())
+  @Mutation(() => PackItem)
+  async clonePackItem(
+    @Arg('id', () => ID) id: number,
+    @Arg('input', { nullable: true }) { packId }: ClonePackItemInput = {},
+    @Ctx() ctx: Context
+  ): Promise<PackItem> {
+    const packItem = await PackItem.findOne(id, {
+      relations: ['packCategory'],
+    });
+    requireIsOwner(ctx, packItem);
+
+    if (!packId) {
+      const input = {
+        userItemId: packItem.userItemId,
+        packCategoryId: packItem.packCategoryId,
+      };
+
+      return create<PackItem>(PackItem, input, ctx, { addOwner: true });
+    }
+
+    const pack = await Pack.findOne(packId);
+    requireIsOwner(ctx, pack);
+
+    const packCategory = await packItem.packCategory;
+
+    const newPackCategoryInput = { categoryId: packCategory.id, packId };
+    let newPackCategory = await PackCategory.findOne({
+      where: newPackCategoryInput,
+    });
+
+    if (!newPackCategory) {
+      newPackCategory = await create<PackCategory>(
+        PackCategory,
+        newPackCategoryInput,
+        ctx,
+        { addOwner: true }
+      );
+    }
+
+    const input = {
+      userItemId: packItem.userItemId,
+      packCategoryId: newPackCategory.id,
+    };
+
+    return create<PackItem>(PackItem, input, ctx, { addOwner: true });
   }
 
   //////////////////////////////////////////////////////////////////////////////

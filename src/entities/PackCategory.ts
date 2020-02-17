@@ -18,11 +18,20 @@ import { User } from './User';
 @ObjectType()
 @Entity()
 export class PackCategory extends BaseEntity {
+  //////////////////////////////////////////////////////////////////////////////
+  // Columns
+  //////////////////////////////////////////////////////////////////////////////
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Pack, (pack: Pack) => pack.packCategories)
+  //////////////////////////////////////////////////////////////////////////////
+  // Relational Columns
+  //////////////////////////////////////////////////////////////////////////////
+  @ManyToOne(
+    () => Pack,
+    (pack: Pack) => pack.packCategories
+  )
   pack: Pack;
   @Column()
   packId: number;
@@ -33,16 +42,27 @@ export class PackCategory extends BaseEntity {
   userId: number;
 
   @Field(() => Category)
-  @ManyToOne(() => Category, (category: Category) => category.packCategories, {
-    lazy: true,
-  })
+  @ManyToOne(
+    () => Category,
+    (category: Category) => category.packCategories,
+    {
+      lazy: true,
+    }
+  )
   category: Lazy<Category>;
   @Column()
   categoryId: number;
 
+  //////////////////////////////////////////////////////////////////////////////
+  // One-To-Many
+  //////////////////////////////////////////////////////////////////////////////
   @Field(() => [PackItem])
-  @OneToMany(() => PackItem, (packItem: PackItem) => packItem.packCategory, {
-    lazy: true,
-  })
+  @OneToMany(
+    () => PackItem,
+    (packItem: PackItem) => packItem.packCategory,
+    {
+      lazy: true,
+    }
+  )
   packItems: Lazy<PackItem[]>;
 }
