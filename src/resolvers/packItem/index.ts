@@ -96,30 +96,32 @@ export class PackItemResolver {
   // Clone PackItem
   //////////////////////////////////////////////////////////////////////////////
   @UseMiddleware(Auth())
-  @Mutation(() => PackItem)
+  @Mutation(() => PackCategory)
   async clonePackItem(
     @Arg('id', () => ID) id: number,
-    @Arg('input', { nullable: true }) { packId }: ClonePackItemInput = {},
+    @Arg('input') { packId }: ClonePackItemInput,
     @Ctx() ctx: Context
-  ): Promise<PackItem> {
+  ): Promise<PackCategory> {
     const packItem = await PackItem.findOne(id, {
       relations: ['packCategory'],
     });
     requireIsOwner(ctx, packItem);
 
-    if (!packId) {
+    const packCategory = await packItem.packCategory;
+
+    if (packId === packCategory.packId) {
       const input = {
         userItemId: packItem.userItemId,
         packCategoryId: packItem.packCategoryId,
       };
 
-      return create<PackItem>(PackItem, input, ctx, { addOwner: true });
+      await create<PackItem>(PackItem, input, ctx, { addOwner: true });
+
+      return packCategory;
     }
 
     const pack = await Pack.findOne(packId);
     requireIsOwner(ctx, pack);
-
-    const packCategory = await packItem.packCategory;
 
     const newPackCategoryInput = { categoryId: packCategory.id, packId };
     let newPackCategory = await PackCategory.findOne({
@@ -140,7 +142,9 @@ export class PackItemResolver {
       packCategoryId: newPackCategory.id,
     };
 
-    return create<PackItem>(PackItem, input, ctx, { addOwner: true });
+    await create<PackItem>(PackItem, input, ctx, { addOwner: true });
+
+    return newPackCategory;
   }
 
   //////////////////////////////////////////////////////////////////////////////
