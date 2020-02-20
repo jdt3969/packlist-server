@@ -24,12 +24,19 @@ export class Category extends BaseEntity {
   @Column()
   name: string;
 
-  @ManyToOne(() => User, (user: User) => user.categories)
+  @ManyToOne(
+    () => User,
+    (user: User) => user.categories
+  )
   user: User;
   @Column()
   userId: number;
 
-  @ManyToMany(() => UserItem, (userItem: UserItem) => userItem.categories)
+  @Field(() => UserItem)
+  @ManyToMany(
+    () => UserItem,
+    (userItem: UserItem) => userItem.categories
+  )
   userItems: UserItem[];
 
   @OneToMany(

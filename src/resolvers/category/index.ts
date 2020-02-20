@@ -12,23 +12,30 @@ import { Category } from '@/entities/Category';
 
 import { Auth } from '@/middleware/Auth';
 
-import { getAll, getOne, create, update, destroy } from '@/utils/resolvers';
+import { getOne, create, update, destroy } from '@/utils/resolvers';
+import { getCategories } from './utils';
 
 import { Context } from '@/types/Context';
 import { CreateCategoryInput } from './types/CreateCategoryInput';
 import { UpdateCategoryInput } from './types/UpdateCategoryInput';
+import { CategoriesInput } from './types/CategoriesInput';
 
 @Resolver(() => Category)
 export class CategoryResolver {
-  /*
   //////////////////////////////////////////////////////////////////////////////
   // Get all Category rows
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Category])
-  async categories(): Promise<Category[]> {
-    return getAll<Category>(Category);
+  async categories(
+    @Arg('input') { isOwned }: CategoriesInput,
+    @Ctx() ctx: Context
+  ): Promise<Category[]> {
+    const userId = (ctx.user || {}).id;
+
+    return getCategories({ userId, isOwned });
   }
 
+  /*
   //////////////////////////////////////////////////////////////////////////////
   // Get Category by id
   //////////////////////////////////////////////////////////////////////////////
