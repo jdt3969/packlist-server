@@ -18,7 +18,6 @@ import { getCategories } from './utils';
 import { Context } from '@/types/Context';
 import { CreateCategoryInput } from './types/CreateCategoryInput';
 import { UpdateCategoryInput } from './types/UpdateCategoryInput';
-import { CategoriesInput } from './types/CategoriesInput';
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -26,13 +25,10 @@ export class CategoryResolver {
   // Get all Category rows
   //////////////////////////////////////////////////////////////////////////////
   @Query(() => [Category])
-  async categories(
-    @Arg('input') { isOwned }: CategoriesInput,
-    @Ctx() ctx: Context
-  ): Promise<Category[]> {
+  async categories(@Ctx() ctx: Context): Promise<Category[]> {
     const userId = (ctx.user || {}).id;
 
-    return getCategories({ userId, isOwned });
+    return getCategories({ userId });
   }
 
   /*
