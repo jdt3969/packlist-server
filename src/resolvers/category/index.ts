@@ -9,15 +9,19 @@ import {
 } from 'type-graphql';
 
 import { Category } from '@/entities/Category';
+import { PackCategory } from '@/entities/PackCategory';
 
 import { Auth } from '@/middleware/Auth';
 
 import { getOne, create, update, destroy } from '@/utils/resolvers';
 import { getCategories } from './utils';
+import { getUserItemsByCategory } from '@/resolvers/userItem/utils';
 
 import { Context } from '@/types/Context';
 import { CreateCategoryInput } from './types/CreateCategoryInput';
 import { UpdateCategoryInput } from './types/UpdateCategoryInput';
+import { requireIsOwner } from '@/utils/requirements';
+import { PackItem } from '@/entities/PackItem';
 
 @Resolver(() => Category)
 export class CategoryResolver {
@@ -31,7 +35,6 @@ export class CategoryResolver {
     return getCategories({ userId });
   }
 
-  /*
   //////////////////////////////////////////////////////////////////////////////
   // Get Category by id
   //////////////////////////////////////////////////////////////////////////////
@@ -77,7 +80,36 @@ export class CategoryResolver {
     @Arg('id', () => ID) id: number,
     @Ctx() ctx: Context
   ): Promise<Boolean> {
-    return destroy(Category, id, ctx, { isOwner: true });
+    const userId = (ctx.user || {}).id;
+
+    const category = await Category.findOne(id);
+    requireIsOwner(ctx, category);
+
+    const packCategories = await PackCategory.find({
+      where: { categoryId: id },
+      relations: ['packItems'],
+    });
+
+    for (const packCategory of packCategories) {
+      const packItems = await packCategory.packItems;
+
+      await PackItem.remove(packItems);
+    }
+
+    await PackCategory.remove(packCategories);
+
+    const userItems = await getUserItemsByCategory({ userId, categoryId: id });
+
+    for (const userItem of userItems) {
+      const categories = await userItem.categories;
+
+      if (categories.length === 1) {
+        userItem.remove();
+      }
+    }
+
+    await category.remove();
+
+    return true;
   }
-  */
 }

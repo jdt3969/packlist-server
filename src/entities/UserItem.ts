@@ -78,7 +78,8 @@ export class UserItem extends BaseEntity {
   //////////////////////////////////////////////////////////////////////////////
   @ManyToMany(
     () => Category,
-    (category: Category) => category.userItems
+    (category: Category) => category.userItems,
+    { cascade: true }
   )
   @JoinTable()
   categories: Category[];

@@ -15,8 +15,7 @@ import { Category } from '@/entities/Category';
 
 import { Auth } from '@/middleware/Auth';
 
-import { getAll, getOne, create, destroy, validate } from '@/utils/resolvers';
-import { NotFoundError } from '@/utils/errors';
+import { getAll, getOne, create, validate } from '@/utils/resolvers';
 
 import { findPackCategory, formatCategoryName } from './utils';
 
@@ -108,12 +107,6 @@ export class PackCategoryResolver {
       getOwnerId: () => category.userId,
     });
 
-    console.log('==========================================================');
-    console.log('Update PackCategory');
-    console.log();
-    console.log(packCategory);
-    console.log(category);
-
     const currentPackCategory = await findPackCategory({
       packId: packCategory.packId,
       name,
@@ -122,10 +115,6 @@ export class PackCategoryResolver {
     if (currentPackCategory) {
       // Updating current category to itself, no update necessary
       if (currentPackCategory.id === packCategory.id) {
-        console.log('Updating current category to itself, no update necessary');
-        console.log(
-          '=========================================================='
-        );
         return packCategory;
       }
 
@@ -150,21 +139,15 @@ export class PackCategoryResolver {
 
     const packCategoryWasUnique = !otherPackCategories.length;
 
-    console.log('Pack Category Was Unique:', packCategoryWasUnique);
-
     // No other pack uses the category and next Catgeory doesn't already exist
     // so just update category name and items are already linked
     if (packCategoryWasUnique && !nextCategory) {
-      console.log('Just change category name to', name);
       Category.merge(category, { name });
       await category.save();
     } else {
       // The next Catgeory doesn't already exist so we create it (we'll save later)
       if (!nextCategory) {
         nextCategory = await Category.create({ name, userId }).save();
-        console.log('Create new Catgory', name);
-      } else {
-        console.log('Reusing existing Category');
       }
 
       // Point pack category to the next category
@@ -173,18 +156,12 @@ export class PackCategoryResolver {
 
       // Update user items to point to correct categories
       if (packCategoryWasUnique) {
-        // TODO test if deleting userItems is necessary since we delete
         // Just remove UserItems from old Category
-        console.log('Remove UserItems from old Category');
-        console.log(category.userItems);
 
         // Category will be orphaned so we remove it
-        console.log('Remove category', category.name);
         await category.remove();
       } else {
         // Check if we need to remove UserItems from old Category
-        console.log('Check if we need to remove UserItems from old Category');
-        console.log(category.userItems);
         let exists: { [key: string]: Boolean } = {};
 
         for (const otherPackCategory of otherPackCategories) {
@@ -195,13 +172,11 @@ export class PackCategoryResolver {
         }
 
         category.userItems = category.userItems.filter(({ id }) => exists[id]);
-        console.log('After removal');
-        console.log(category.userItems);
+
         await category.save();
       }
 
       // Just add UserItems to next Category if they don't already exist
-      console.log("Add UserItems to next Category if they don't already exist");
 
       const packItems = await PackItem.find({
         where: { packCategoryId: packCategory.id },
@@ -213,18 +188,15 @@ export class PackCategoryResolver {
           return await packItem.userItem;
         })
       );
-      console.log(userItems);
 
       nextCategory.userItems = uniqBy(
         [...(nextCategory.userItems || []), ...userItems],
         'id'
       );
-      console.log('After add');
-      console.log(nextCategory.userItems);
+
       await nextCategory.save();
     }
 
-    console.log('==========================================================');
     return packCategory;
   }
 
@@ -247,53 +219,11 @@ export class PackCategoryResolver {
 
     const packItems = await PackItem.find({
       where: { packCategoryId: packCategory.id },
-      relations: ['userItem', 'userItem.packItems'],
     });
 
-    console.log('==========================================================');
-    console.log('Delete PackCategory');
-    console.log();
-    console.log(packCategory);
-    console.log(category);
-    console.log(packItems);
+    await PackItem.remove(packItems);
 
-    const otherPackCategoriesCount = await PackCategory.count({
-      where: {
-        id: Not(packCategory.id),
-        categoryId: packCategory.categoryId,
-      },
-    });
-
-    for (const packItem of packItems) {
-      const userItem = await packItem.userItem;
-      const otherPackItems = await userItem.packItems;
-
-      const userItemUnique = !otherPackItems.find(
-        ({ id }) => packItem.id !== id
-      );
-
-      console.log(
-        'PackItem',
-        packItem.id,
-        `is${userItemUnique ? '' : ' not'} unique`
-      );
-
-      console.log('Deleting PackItem', packItem.id);
-      await packItem.remove();
-
-      if (userItemUnique) {
-        console.log('Deleting UserItem', userItem.id);
-        await userItem.remove();
-      }
-    }
-
-    console.log('Deleting PackCategory', packCategory.id);
     await packCategory.remove();
-
-    if (!otherPackCategoriesCount) {
-      console.log('Category', packCategory.categoryId, 'is unique, deleting');
-      await category.remove();
-    }
 
     return true;
   }
